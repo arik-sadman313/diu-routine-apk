@@ -1,0 +1,46 @@
+{
+  "format": "diu-routine-v1",
+  "semester": "Fall 2026",
+  "department": "CSE",
+  "classes": [
+    {
+      "course_code": "CSE331",
+      "group_code": "61_M",
+      "batch": "61",
+      "section": "M",
+      "subgroup": null,
+      "special_group": null,
+      "teacher": "ABC",
+      "room": "G1-007",
+      "day": "Tuesday",
+      "start_time": "10:00",
+      "end_time": "11:30"
+    },
+    {
+      "course_code": "CSE224",
+      "group_code": "62_H2",
+      "batch": null,
+      "section": null,
+      "subgroup": null,
+      "special_group": null,
+      "teacher": "XYZ",
+      "room": "G01-008",
+      "day": "Wednesday",
+      "start_time": "08:30",
+      "end_time": "11:30"
+    },
+    {
+      "course_code": "CSE499",
+      "group_code": "RE_B(3C)",
+      "batch": null,
+      "section": null,
+      "subgroup": null,
+      "special_group": null,
+      "teacher": null,
+      "room": "L2",
+      "day": "Thursday",
+      "start_time": "14:30",
+      "end_time": "16:00"
+    }
+  ]
+}

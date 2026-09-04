@@ -397,6 +397,20 @@ class LocalRepository {
       classes: cRes.values || []
     };
   }
+
+  async checkDuplicateJson(jsonContent: any): Promise<boolean> {
+    if (jsonContent.format !== 'diu-routine-v1' || !Array.isArray(jsonContent.classes)) {
+      return false;
+    }
+    const str = JSON.stringify(jsonContent);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const db = dbService.getDb();
+    const dupCheck = await db.query('SELECT id FROM routine_versions WHERE file_hash = ?', [hashHex]);
+    return !!(dupCheck.values && dupCheck.values.length > 0);
+  }
 }
 
 export const localRepository = new LocalRepository();

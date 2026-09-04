@@ -1,26 +1,35 @@
-# ── Python ────────────────────────────────────────────────────────────────────
-venv/
-__pycache__/
-.pytest_cache/
-*.pyc
-*.pyo
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# ── Environment & secrets ─────────────────────────────────────────────────────
-.env
+node_modules
+dist
+dist-ssr
+*.local
 
-# ── Application runtime data ──────────────────────────────────────────────────
-data/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# ── Frontend build artifacts ──────────────────────────────────────────────────
-node_modules/
-dist/
-frontend/dist/
-frontend/node_modules/
-
-# ── Capacitor / Android ───────────────────────────────────────────────────────
-frontend/android/app/build/
-frontend/android/.gradle/
-frontend/android/local.properties
-
-# ── Temporary / generated ─────────────────────────────────────────────────────
-output/
+# Android / Gradle / Capacitor
+.gradle/
+android/app/build/
+android/build/
+android/.gradle/
+android/.idea/
+android/local.properties
+routines.db
+*.db
+*.db-journal

@@ -132,6 +132,61 @@ export function Settings() {
   const [editingCourse, setEditingCourse] = useState<string | null>(null);
   const [savingCourse, setSavingCourse] = useState(false);
 
+  // Routine Update State
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'up-to-date' | 'update-available' | 'error'>('idle');
+  const [downloadedRoutine, setDownloadedRoutine] = useState<any>(null);
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState('');
+
+  const handleCheckUpdate = async () => {
+    setUpdateStatus('checking');
+    setUpdateError('');
+    try {
+      const timestamp = new Date().getTime();
+      const res = await fetch(`https://raw.githubusercontent.com/arik-sadman313/diu-routine-data/main/latest.json?t=${timestamp}`, {
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        throw new Error('Could not check for routine updates. Your current routine is still available.');
+      }
+      const data = await res.json();
+      
+      if (data.format !== 'diu-routine-v1' || !Array.isArray(data.classes)) {
+        throw new Error('The downloaded routine is invalid and was not imported.');
+      }
+      
+      const isDuplicate = await api.checkDuplicateJson(data);
+      if (isDuplicate) {
+        setUpdateStatus('up-to-date');
+      } else {
+        setDownloadedRoutine(data);
+        setUpdateStatus('update-available');
+      }
+    } catch (e: any) {
+      if (e.message === 'Failed to fetch' || e.name === 'TypeError') {
+        setUpdateError('Unable to check for updates. Please check your internet connection.');
+      } else {
+        setUpdateError(e.message || 'Error checking for updates.');
+      }
+      setUpdateStatus('error');
+    }
+  };
+
+  const handlePerformUpdate = async () => {
+    if (!downloadedRoutine) return;
+    setUpdating(true);
+    try {
+      await api.importJson(downloadedRoutine);
+      alert(`Routine Updated\n\n${downloadedRoutine.semester || 'The new routine'} is now available.`);
+      window.location.reload();
+    } catch (e: any) {
+      alert(`Update failed: ${e.message}`);
+      setUpdateStatus('error');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const handleAddCourse = async () => {
     const code = courseCode.trim().toUpperCase();
     const name = courseName.trim();
@@ -222,6 +277,49 @@ export function Settings() {
       </div>
 
       <div className="space-y-6">
+        
+        {/* Routine Update Status */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <BookOpen className="w-5 h-5 text-purple-500" />
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Routine</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Current Routine: {options ? `Version ${options.version_id}` : 'None'}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+            <div>
+              <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Routine Status</div>
+              <div className="text-xs mt-1">
+                {updateStatus === 'idle' && <span className="text-slate-500">Not checked recently</span>}
+                {updateStatus === 'checking' && <span className="text-slate-500 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Checking GitHub...</span>}
+                {updateStatus === 'up-to-date' && <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Up to date</span>}
+                {updateStatus === 'update-available' && <span className="text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1">↑ Update available: {downloadedRoutine?.semester || 'New Routine'}</span>}
+                {updateStatus === 'error' && <span className="text-red-500">{updateError}</span>}
+              </div>
+            </div>
+
+            {updateStatus === 'update-available' ? (
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button onClick={() => setUpdateStatus('idle')} className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none">Later</button>
+                <button onClick={handlePerformUpdate} disabled={updating} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none flex items-center justify-center gap-2">
+                  {updating && <Loader2 className="w-4 h-4 animate-spin"/>}
+                  Update Routine
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={handleCheckUpdate} 
+                disabled={updateStatus === 'checking'}
+                className="w-full sm:w-auto px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {updateStatus === 'checking' && <Loader2 className="w-4 h-4 animate-spin"/>}
+                Check for Routine Updates
+              </button>
+            )}
+          </div>
+        </div>
         
         {/* Profile Settings */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">

@@ -171,6 +171,11 @@ export const api = {
     });
   },
 
+  async checkDuplicateJson(jsonContent: any): Promise<boolean> {
+    if (Capacitor.isNativePlatform()) return localRepository.checkDuplicateJson(jsonContent);
+    throw new Error("Duplicate checking is only supported on native mobile app.");
+  },
+
   async exportJsonAndSave(versionId: number): Promise<void> {
     if (Capacitor.isNativePlatform()) {
       const data = await localRepository.exportJson(versionId);

@@ -120,7 +120,7 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
 export function Settings() {
   const { batch, section, weatherLocation, setBatch, setSection, setWeatherLocation, clearPreferences } = usePreferences();
   const { theme, setTheme } = useTheme();
-  const { options, loading, customCourses, refreshCustomCourses } = useAppContext();
+  const { options, loading, customCourses, refreshCustomCourses, setSelectedVersionId } = useAppContext();
   
   const [showSaved, setShowSaved] = useState(false);
   const mounted = useRef(false);
@@ -133,7 +133,7 @@ export function Settings() {
   const [savingCourse, setSavingCourse] = useState(false);
 
   // Routine Update State
-  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'up-to-date' | 'update-available' | 'error'>('idle');
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'up-to-date' | 'update-available' | 'error' | 'success'>('idle');
   const [downloadedRoutine, setDownloadedRoutine] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState('');
@@ -176,9 +176,11 @@ export function Settings() {
     if (!downloadedRoutine) return;
     setUpdating(true);
     try {
-      await api.importJson(downloadedRoutine);
-      alert(`Routine Updated\n\n${downloadedRoutine.semester || 'The new routine'} is now available.`);
-      window.location.reload();
+      const res = await api.importJson(downloadedRoutine);
+      if (res.version_id) {
+        setSelectedVersionId(res.version_id);
+      }
+      setUpdateStatus('success');
     } catch (e: any) {
       alert(`Update failed: ${e.message}`);
       setUpdateStatus('error');
@@ -295,6 +297,7 @@ export function Settings() {
                 {updateStatus === 'idle' && <span className="text-slate-500">Not checked recently</span>}
                 {updateStatus === 'checking' && <span className="text-slate-500 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Checking GitHub...</span>}
                 {updateStatus === 'up-to-date' && <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Up to date</span>}
+                {updateStatus === 'success' && <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Routine updated successfully. {downloadedRoutine?.semester || 'The new routine'} is now available.</span>}
                 {updateStatus === 'update-available' && <span className="text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1">↑ Update available: {downloadedRoutine?.semester || 'New Routine'}</span>}
                 {updateStatus === 'error' && <span className="text-red-500">{updateError}</span>}
               </div>

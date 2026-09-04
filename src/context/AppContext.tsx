@@ -27,6 +27,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [options, setOptions] = useState<OptionsResponse | null>(null);
   const [customCourses, setCustomCourses] = useState<CustomCourse[]>([]);
   
+  const [initialLoad, setInitialLoad] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,6 +90,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setError(err.message || 'Failed to initialize app data');
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   };
 
@@ -123,7 +125,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       loading,
       error
     }}>
-      {loading ? (
+      {initialLoad ? (
         <div className="flex h-screen w-full items-center justify-center bg-slate-50 dark:bg-slate-950">
           <div className="flex flex-col items-center gap-4 text-purple-500">
             <Loader2 className="w-12 h-12 animate-spin" />

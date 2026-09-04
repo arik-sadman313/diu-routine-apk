@@ -6,8 +6,8 @@ import { useAppContext } from '../context/AppContext';
 import type { ClassRecord } from '../types/api';
 import { Timetable } from '../components/Timetable';
 import { ClassEditorModal } from '../components/ClassEditorModal';
-import { Search, LayoutGrid, List, Compass, Loader2, Eye, Plus } from 'lucide-react';
-
+import { Search, LayoutGrid, List, Compass, Loader2, Eye, Plus, ChevronDown, GraduationCap, Users, Layout } from 'lucide-react';
+import { SelectionModal } from '../components/SelectionModal';
 export function Explore() {
   const { selectedVersion, options, loading: optionsLoading } = useAppContext();
   const versionId = selectedVersion?.id;
@@ -16,6 +16,10 @@ export function Explore() {
   
   const [selectedBatch, setSelectedBatch] = useState<string>(() => searchParams.get('batch') || prefs.batch || '');
   const [selectedSection, setSelectedSection] = useState<string>(() => searchParams.get('section') || prefs.section || '');
+  
+  const [showBatchModal, setShowBatchModal] = useState(false);
+  const [showSectionModal, setShowSectionModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
 
   // Sync with URL params if user navigates here with them explicitly while already mounted
   useEffect(() => {
@@ -113,57 +117,42 @@ export function Explore() {
               <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                 Batch
               </label>
-              <select
-                value={selectedBatch}
-                onChange={(e) => {
-                  setSelectedBatch(e.target.value);
-                  setSelectedGroup('');
-                }}
+              <button
+                onClick={() => setShowBatchModal(true)}
                 disabled={optionsLoading || !options}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none disabled:opacity-50 text-sm font-medium"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
               >
-                <option value="">Select…</option>
-                {options?.batches.map(b => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-              </select>
+                <span>{selectedBatch || 'Select…'}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
             </div>
 
             <div className="flex-1">
               <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                 Section
               </label>
-              <select
-                value={selectedSection}
-                onChange={(e) => {
-                  setSelectedSection(e.target.value);
-                  setSelectedGroup('');
-                }}
+              <button
+                onClick={() => setShowSectionModal(true)}
                 disabled={!selectedBatch || optionsLoading || availableSections.length === 0}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none disabled:opacity-50 text-sm font-medium"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
               >
-                <option value="">Select…</option>
-                {availableSections.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+                <span>{selectedSection || 'Select…'}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
             </div>
             
             <div className="flex-1">
               <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
                 Group
               </label>
-              <select
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
+              <button
+                onClick={() => setShowGroupModal(true)}
                 disabled={!hasSelection || uniqueGroups.length === 0}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none disabled:opacity-50 text-sm font-medium"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
               >
-                <option value="">All Groups</option>
-                {uniqueGroups.map(g => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
+                <span>{selectedGroup || 'All Groups'}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
             </div>
           </div>
 
@@ -264,6 +253,51 @@ export function Explore() {
           }}
         />
       )}
+
+      <SelectionModal
+        isOpen={showBatchModal}
+        onClose={() => setShowBatchModal(false)}
+        onConfirm={(val) => {
+          setSelectedBatch(val);
+          setSelectedGroup('');
+        }}
+        title="Select Batch"
+        subtitle="Choose your batch"
+        icon={GraduationCap}
+        options={options?.batches || []}
+        currentValue={selectedBatch}
+        searchPlaceholder="Search batch..."
+        emptyText="No batches found"
+      />
+
+      <SelectionModal
+        isOpen={showSectionModal}
+        onClose={() => setShowSectionModal(false)}
+        onConfirm={(val) => {
+          setSelectedSection(val);
+          setSelectedGroup('');
+        }}
+        title="Select Section"
+        subtitle="Choose your section"
+        icon={Users}
+        options={availableSections}
+        currentValue={selectedSection}
+        searchPlaceholder="Search section..."
+        emptyText="No sections found"
+      />
+
+      <SelectionModal
+        isOpen={showGroupModal}
+        onClose={() => setShowGroupModal(false)}
+        onConfirm={setSelectedGroup}
+        title="Select Group"
+        subtitle="Choose your group"
+        icon={Layout}
+        options={['', ...uniqueGroups]} // Include empty option for "All Groups"
+        currentValue={selectedGroup}
+        searchPlaceholder="Search group..."
+        emptyText="No groups found"
+      />
     </div>
   );
 }

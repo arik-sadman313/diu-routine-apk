@@ -8,7 +8,10 @@ import type {
   OverrideRequest,
 } from '../types/api';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+import { Capacitor } from '@capacitor/core';
+import { localRepository } from './localRepository';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:8000/api`;
 
 class ApiError extends Error {
   public status: number;
@@ -46,20 +49,24 @@ export const api = {
   },
 
   async getVersions(): Promise<VersionsResponse> {
+    if (Capacitor.isNativePlatform()) return localRepository.getVersions();
     return fetchApi<VersionsResponse>('/versions');
   },
 
   async getVersion(id: number): Promise<RoutineVersion> {
+    if (Capacitor.isNativePlatform()) return localRepository.getVersion(id);
     return fetchApi<RoutineVersion>(`/versions/${id}`);
   },
 
   async getOptions(versionId?: number): Promise<OptionsResponse> {
+    if (Capacitor.isNativePlatform()) return localRepository.getOptions(versionId);
     const params = new URLSearchParams();
     if (versionId) params.append('version_id', versionId.toString());
     return fetchApi<OptionsResponse>(`/options?${params.toString()}`);
   },
 
   async getRoutine(batch: string, section: string, versionId?: number): Promise<ClassesResponse> {
+    if (Capacitor.isNativePlatform()) return localRepository.getRoutine(batch, section, versionId);
     const params = new URLSearchParams();
     if (versionId) params.append('version_id', versionId.toString());
     const query = params.toString();
@@ -67,6 +74,7 @@ export const api = {
   },
 
   async search(query: string, versionId?: number): Promise<SearchResponse> {
+    if (Capacitor.isNativePlatform()) return localRepository.search(query, versionId);
     const params = new URLSearchParams();
     params.append('q', query);
     if (versionId) params.append('version_id', versionId.toString());
@@ -74,6 +82,8 @@ export const api = {
   },
 
   async uploadRoutine(file: File, name?: string): Promise<UploadResponse> {
+    // Native PDF parsing is not supported directly in the frontend, should throw error or fallback
+    if (Capacitor.isNativePlatform()) throw new Error("PDF parsing is only supported via JSON import on mobile.");
     const formData = new FormData();
     formData.append('file', file);
     
@@ -89,6 +99,7 @@ export const api = {
   },
 
   async uploadConfirm(sessionId: string, filename: string, corrections: any[], name?: string): Promise<UploadResponse> {
+    if (Capacitor.isNativePlatform()) throw new Error("Not supported on mobile.");
     const formData = new FormData();
     formData.append('session_id', sessionId);
     formData.append('filename', filename);
@@ -102,6 +113,7 @@ export const api = {
   },
 
   async saveOverride(versionId: number, payload: OverrideRequest): Promise<{ status: string }> {
+    if (Capacitor.isNativePlatform()) return localRepository.saveOverride(versionId, payload);
     return fetchApi<{ status: string }>(`/routine/${versionId}/overrides`, {
       method: 'POST',
       headers: {
@@ -112,12 +124,44 @@ export const api = {
   },
 
   async deleteOverride(versionId: number, classId: number): Promise<{ status: string }> {
+    if (Capacitor.isNativePlatform()) return localRepository.deleteOverride(versionId, classId);
     return fetchApi<{ status: string }>(`/routine/${versionId}/classes/${classId}`, {
       method: 'DELETE',
     });
   },
 
+  async deleteRoutine(versionId: number): Promise<{ status: string }> {
+    if (Capacitor.isNativePlatform()) return localRepository.deleteRoutine(versionId);
+    return fetchApi<{ status: string }>(`/routine/${versionId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async getCustomCourses(): Promise<{ courses: { course_code: string; course_name: string }[] }> {
+    if (Capacitor.isNativePlatform()) return localRepository.getCustomCourses();
+    return fetchApi<{ courses: { course_code: string; course_name: string }[] }>('/courses');
+  },
+
+  async addCustomCourse(payload: { course_code: string; course_name: string }): Promise<{ status: string }> {
+    if (Capacitor.isNativePlatform()) return localRepository.addCustomCourse(payload);
+    return fetchApi<{ status: string }>('/courses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteCustomCourse(courseCode: string): Promise<{ status: string }> {
+    if (Capacitor.isNativePlatform()) return localRepository.deleteCustomCourse(courseCode);
+    return fetchApi<{ status: string }>(`/courses/${encodeURIComponent(courseCode)}`, {
+      method: 'DELETE',
+    });
+  },
+
   async importJson(jsonContent: any): Promise<UploadResponse> {
+    if (Capacitor.isNativePlatform()) return localRepository.importJson(jsonContent);
     return fetchApi<UploadResponse>('/import/json', {
       method: 'POST',
       headers: {
@@ -127,7 +171,27 @@ export const api = {
     });
   },
 
-  async exportJson(versionId: number): Promise<any> {
-    return fetchApi<any>(`/export/json/${versionId}`);
+  async exportJsonAndSave(versionId: number): Promise<void> {
+    if (Capacitor.isNativePlatform()) {
+      const data = await localRepository.exportJson(versionId);
+      const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem');
+      const filename = `diu_routine_v${versionId}_export.json`;
+      const strData = JSON.stringify(data, null, 2);
+      
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data: strData,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8,
+        });
+        alert(`Exported to Documents folder as ${filename}`);
+      } catch (e) {
+        console.error("Failed to write file:", e);
+        alert("Failed to save export file.");
+      }
+    } else {
+      window.open(`${API_BASE}/export/json/${versionId}`, '_blank');
+    }
   }
 };

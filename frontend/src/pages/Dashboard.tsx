@@ -8,7 +8,7 @@ import { useAppContext } from '../context/AppContext';
 import { api } from '../services/api';
 import { plannerApi } from '../services/plannerApi';
 import type { ClassRecord } from '../types/api';
-import type { PlannerTask, TodayResponse, UpcomingResponse, OverdueResponse } from '../types/planner';
+import type { PlannerTask, UpcomingResponse, OverdueResponse } from '../types/planner';
 import { ClassDetailModal } from '../components/ClassDetailModal';
 import { ClassEditorModal } from '../components/ClassEditorModal';
 import { PlannerItemModal } from '../components/planner/PlannerItemModal';
@@ -16,7 +16,7 @@ import { parseRoutineTime } from '../utils/time';
 import {
   Clock, ArrowRight, Loader2, Calendar, Plus, BookOpen,
   FileText, ClipboardList, CheckSquare, Bell,
-  AlertTriangle, ChevronRight, Zap, Cloud, CloudRain, CloudLightning, Sun, CloudFog, MapPin,
+  AlertTriangle, ChevronRight, Cloud, CloudRain, CloudLightning, Sun, CloudFog, MapPin,
   Search, X
 } from 'lucide-react';
 
@@ -133,20 +133,21 @@ function WeatherWidget() {
     setQuery('');
   };
 
+  const getConditionIcon = (condition: string) => {
+    if (condition.includes('Clear')) return '☀';
+    if (condition.includes('Rain') || condition.includes('Drizzle') || condition.includes('Showers')) return '🌧';
+    if (condition.includes('Thunderstorm')) return '⚡';
+    if (condition.includes('Partly Cloudy')) return '🌤';
+    return '☁';
+  };
+
   const renderContent = () => {
-    if (loading) return <div className="h-full flex items-center justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>;
+    if (loading) return <div className="p-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> Loading weather...</div>;
     if (error || !data) {
       return (
-        <div className="h-full flex flex-col items-center justify-center p-4 text-center">
-          <CloudFog className="w-6 h-6 text-slate-400 mb-2 opacity-50" />
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Weather unavailable</p>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Check connection</p>
-          <button 
-            onClick={() => setIsOpen(true)}
-            className="mt-3 text-[10px] px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md font-semibold text-slate-500 dark:text-slate-400"
-          >
-            Change Location
-          </button>
+        <div className="p-3 text-center flex items-center justify-center gap-2">
+          <CloudFog className="w-4 h-4 text-slate-400 opacity-70" />
+          <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Weather unavailable offline</p>
         </div>
       );
     }
@@ -157,35 +158,63 @@ function WeatherWidget() {
     if (data.condition.includes('Thunderstorm')) Icon = CloudLightning;
 
     return (
-      <>
-        <div className="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-bl-full pointer-events-none" />
-        <div className="flex justify-between items-start mb-2 relative z-10">
-          <button 
-            onClick={() => setIsOpen(true)}
-            className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-purple-500 dark:text-slate-400 dark:hover:text-purple-400 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 rounded p-0.5 -ml-0.5"
-          >
-            <MapPin className="w-3 h-3" /> {data.locationName}
-          </button>
-          <Icon className="w-6 h-6 text-purple-500 dark:text-purple-400 drop-shadow-sm" />
+      <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800/60 w-full">
+        <div className="p-4 flex-shrink-0 flex items-center justify-between md:flex-col md:items-start md:justify-center md:w-48 gap-2 relative">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/5 to-transparent rounded-bl-full pointer-events-none" />
+          <div>
+            <button 
+              onClick={() => setIsOpen(true)}
+              className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-purple-500 dark:text-slate-400 dark:hover:text-purple-400 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 rounded p-0.5 -ml-0.5"
+            >
+              <MapPin className="w-3 h-3" /> {data.locationName}
+            </button>
+            <div className="flex items-end gap-2 mt-1">
+              <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tighter leading-none">{data.temp}°</span>
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 leading-snug">{data.condition}</span>
+            </div>
+          </div>
+          <div className="flex flex-col items-end md:items-start gap-1">
+            <Icon className="w-7 h-7 text-purple-500 dark:text-purple-400 drop-shadow-sm mb-1 hidden md:block" />
+            <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <span>H:{data.high}° L:{data.low}°</span>
+              {data.precipProb > 0 && <span>💧 {data.precipProb}%</span>}
+            </div>
+          </div>
         </div>
-        <div className="relative z-10">
-          <div className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tighter mb-1">
-            {data.temp}°
-          </div>
-          <div className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-            {data.condition}
-          </div>
-          <div className="flex items-center gap-3 mt-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-            <span>H:{data.high}° L:{data.low}°</span>
-            {data.precipProb > 0 && <span>💧 {data.precipProb}%</span>}
+
+        {/* Hourly Forecast */}
+        <div className="flex-1 overflow-hidden">
+          <div className="flex overflow-x-auto custom-scrollbar p-3 gap-3 md:gap-4 h-full items-center">
+            {data.hourly?.map((h, i) => (
+              <div key={i} className="flex flex-col items-center flex-shrink-0 min-w-[36px]">
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  {i === 0 ? 'Now' : format(h.time, 'h a')}
+                </div>
+                <div className="text-lg mb-1 drop-shadow-sm" title={h.condition}>
+                  {getConditionIcon(h.condition)}
+                </div>
+                <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                  {h.temp}°
+                </div>
+                {h.precipProb > 0 ? (
+                  <div className="text-[9px] font-bold text-blue-500 dark:text-blue-400 mt-0.5">
+                    {h.precipProb}%
+                  </div>
+                ) : (
+                  <div className="text-[9px] font-bold text-slate-300 dark:text-slate-600 mt-0.5">
+                    --
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </>
+      </div>
     );
   };
 
   return (
-    <div className="h-full relative flex flex-col justify-between p-5 overflow-visible">
+    <div className="relative flex flex-col justify-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-visible">
       {renderContent()}
 
       {/* Popover */}
@@ -264,82 +293,52 @@ function WeatherWidget() {
   );
 }
 
-function DateTimeWidget({ now }: { now: Date }) {
-  return (
-    <div className="h-full flex flex-col justify-center p-5 md:p-6">
-      <div className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">
-        {format(now, 'EEEE')}
-      </div>
-      <div className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight mb-2">
-        {format(now, 'MMMM d, yyyy')}
-      </div>
-      <div className="text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tighter">
-        {format(now, 'h:mm a')}
-      </div>
-    </div>
-  );
-}
-
-function DayProgressWidget({ now }: { now: Date }) {
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
-  const progress = Math.min(100, Math.max(0, ((now.getTime() - startOfDay) / (endOfDay - startOfDay)) * 100));
-  
-  return (
-    <div className="h-full flex flex-col justify-center p-5 md:p-6">
-      <div className="flex justify-between items-end mb-3">
-        <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-          Day Progress
-        </div>
-        <div className="text-lg font-black text-slate-800 dark:text-slate-100">
-          {Math.round(progress)}%
-        </div>
-      </div>
-      <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-        <div 
-          className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-1000 ease-linear"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function TodaySummaryWidget({ classes, now }: { classes: any[], now: Date }) {
+function DailyProgressWidget({ classes, now }: { classes: any[], now: Date }) {
   const total = classes.length;
   let completed = 0;
   let ongoing = 0;
-  let remaining = 0;
-
+  
   classes.forEach(c => {
-    const s = parseRoutineTime(c.start_time, now);
     const e = parseRoutineTime(c.end_time, now);
+    const s = parseRoutineTime(c.start_time, now);
     if (isBefore(e, now)) completed++;
     else if (isBefore(s, now) && isAfter(e, now)) ongoing++;
-    else remaining++;
   });
+  
+  const upcoming = total - completed - ongoing;
+  
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
+  const timeProgress = Math.min(100, Math.max(0, ((now.getTime() - startOfDay) / (endOfDay - startOfDay)) * 100));
 
   return (
-    <div className="h-full flex flex-col justify-center p-5 md:p-6">
-      <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">
-        Today Summary
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-4 md:p-5 flex flex-col sm:flex-row items-center gap-6">
+      {/* Time Progress */}
+      <div className="flex-1 w-full flex flex-col justify-center">
+        <div className="flex justify-between items-end mb-2">
+          <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Day Progress</div>
+          <div className="text-sm font-black text-slate-800 dark:text-slate-100">{Math.round(timeProgress)}%</div>
+        </div>
+        <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner mb-4 sm:mb-0">
+          <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-1000 ease-linear" style={{ width: `${timeProgress}%` }} />
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <div className="text-2xl font-black text-slate-800 dark:text-slate-100">{total}</div>
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total</div>
+      
+      {/* Class Stats */}
+      <div className="flex items-center justify-between sm:justify-center w-full sm:w-auto gap-4 text-center">
+        <div className="flex-1 sm:flex-none">
+          <div className="text-xl font-black text-slate-800 dark:text-slate-100">{completed}</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Done</div>
         </div>
-        <div>
-          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{completed}</div>
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Completed</div>
+        <div className="w-px h-6 bg-slate-200 dark:bg-slate-800" />
+        <div className="flex-1 sm:flex-none">
+          <div className="text-xl font-black text-purple-600 dark:text-purple-400">{ongoing}</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-purple-400/80">Now</div>
         </div>
-        <div>
-          <div className="text-2xl font-black text-purple-600 dark:text-purple-400">{ongoing}</div>
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ongoing</div>
-        </div>
-        <div>
-          <div className="text-2xl font-black text-blue-600 dark:text-blue-400">{remaining}</div>
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Remaining</div>
+        <div className="w-px h-6 bg-slate-200 dark:bg-slate-800" />
+        <div className="flex-1 sm:flex-none">
+          <div className="text-xl font-black text-slate-800 dark:text-slate-100">{upcoming}</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Left</div>
         </div>
       </div>
     </div>
@@ -351,7 +350,7 @@ function TodaySummaryWidget({ classes, now }: { classes: any[], now: Date }) {
 export function Dashboard() {
   const navigate = useNavigate();
   const { batch, section } = usePreferences();
-  const { selectedVersion, loading: appLoading } = useAppContext();
+  const { selectedVersion, loading: appLoading, getCourseName } = useAppContext();
   const versionId = selectedVersion?.id;
 
   // routine
@@ -360,7 +359,6 @@ export function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<ClassRecord | null>(null);
 
   // planner
-  const [todayPlanner, setTodayPlanner] = useState<TodayResponse | null>(null);
   const [upcoming, setUpcoming] = useState<UpcomingResponse | null>(null);
   const [overdue, setOverdue] = useState<OverdueResponse | null>(null);
   const [allTasks, setAllTasks] = useState<PlannerTask[]>([]);
@@ -382,13 +380,11 @@ export function Dashboard() {
   }, [batch, section, versionId]);
 
   const loadPlanner = useCallback(async () => {
-    const [t, u, o, ts] = await Promise.all([
-      plannerApi.getToday(),
+    const [u, o, ts] = await Promise.all([
       plannerApi.getUpcoming(14),
       plannerApi.getOverdue(),
       plannerApi.getTasks({ status: 'Pending' }),
     ]);
-    setTodayPlanner(t);
     setUpcoming(u);
     setOverdue(o);
     setAllTasks(ts.tasks);
@@ -497,10 +493,6 @@ export function Dashboard() {
   const today = now.toISOString().slice(0, 10);
   const tomorrow = new Date(now.getTime() + 86400000).toISOString().slice(0, 10);
 
-  const todayPlannerItems = todayPlanner
-    ? [...todayPlanner.exams, ...todayPlanner.quizzes, ...todayPlanner.assignments, ...todayPlanner.tasks, ...todayPlanner.reminders]
-    : [];
-
   const upcomingItems = upcoming
     ? [...upcoming.exams, ...upcoming.quizzes, ...upcoming.assignments, ...upcoming.tasks, ...upcoming.reminders]
         .sort((a, b) => {
@@ -584,269 +576,212 @@ export function Dashboard() {
         </div>
       </header>
 
-      {/* ── Main Grid ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 xl:gap-6 items-start">
-
-        {/* ── Column 1: Hero & Today ── */}
-        <div className="space-y-5">
-          {/* NEXT / CURRENT CLASS */}
-          <div
-            className={`p-6 rounded-3xl shadow-lg relative overflow-hidden group text-white cursor-pointer ${
-              currentClass
-                ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/30'
-                : 'bg-gradient-to-br from-purple-600 to-violet-700 shadow-purple-500/30'
-            } ring-1 ring-white/10`}
-            onClick={() => focusClass && setSelectedClass(focusClass)}
-          >
-            <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-110 group-hover:bg-white/20 transition-all duration-500" />
+      {/* ── Main Layout ── */}
+      <div className="flex flex-col gap-5 items-stretch w-full max-w-2xl mx-auto mt-4">
+        {/* NEXT / CURRENT CLASS */}
+        <div
+          className={`px-5 py-5 md:px-6 rounded-3xl shadow-md relative overflow-hidden group text-white cursor-pointer ${
+            currentClass
+              ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20'
+              : 'bg-gradient-to-br from-purple-600 to-violet-700 shadow-purple-500/20'
+          } ring-1 ring-white/10`}
+          onClick={() => focusClass && setSelectedClass(focusClass)}
+        >
+          <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-110 group-hover:bg-white/20 transition-all duration-500" />
+          
+          {currentClass && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+              <div 
+                className="h-full bg-white/90 transition-all duration-1000 ease-linear"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          )}
+          
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4 relative z-10">
+            <div className="flex items-center gap-1.5 text-white/90 font-bold text-[10px] uppercase tracking-widest">
+              <Clock className="w-3.5 h-3.5" />
+              {currentClass ? 'Ongoing Now' : (nextClass && nextClassDay === 'Today') ? `Next Class` : 'No More Classes Today'}
+            </div>
             
-            {/* Progress Bar (if ongoing) */}
-            {currentClass && (
-              <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/20">
-                <div 
-                  className="h-full bg-white/90 transition-all duration-1000 ease-linear"
-                  style={{ width: `${progressPercent}%` }}
-                />
+            {countdownStr && (
+              <div className={`text-[9px] font-bold px-2 py-1 rounded-md backdrop-blur-md ${currentClass ? 'bg-black/20 text-white' : 'bg-white/20 text-white'} ring-1 ring-white/20 shadow-sm`}>
+                {countdownStr}
               </div>
             )}
-            
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-5 relative z-10">
-              <div className="flex items-center gap-2 text-white/90 font-bold text-[10px] uppercase tracking-widest">
-                <Clock className="w-4 h-4" />
-                {currentClass ? 'Ongoing Now' : (nextClass && nextClassDay === 'Today') ? `Next Class` : 'No More Classes Today'}
-              </div>
-              
-              {countdownStr && (
-                <div className={`text-[10px] font-bold px-2.5 py-1 rounded-md backdrop-blur-md ${currentClass ? 'bg-black/20 text-white' : 'bg-white/20 text-white'} ring-1 ring-white/20 shadow-sm`}>
-                  {countdownStr}
+          </div>
+          
+          {focusClass ? (
+            <div className="relative z-10">
+              {(!currentClass && nextClassDay !== 'Today') && (
+                <div className="mb-2">
+                  <div className="text-sm font-black opacity-90 tracking-wide border-b border-white/20 pb-1 inline-block uppercase">No More Classes Today</div>
                 </div>
               )}
-            </div>
-            
-            {focusClass ? (
-              <div className="relative z-10 pb-2">
-                {(!currentClass && nextClassDay !== 'Today') && (
-                  <div className="mb-4">
-                    <div className="text-lg font-black opacity-90 tracking-wide border-b border-white/20 pb-1 inline-block uppercase">No More Classes Today</div>
+              {(!currentClass && nextClassDay !== 'Today') && (
+                <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1">Next Class</div>
+              )}
+              <div className="text-3xl md:text-4xl font-black tracking-tight mb-1 drop-shadow-sm leading-none">{focusClass.course_code}</div>
+              {getCourseName(focusClass.course_code) && (
+                <div className="text-white/80 text-xs md:text-sm font-medium mb-3 leading-tight">
+                  {getCourseName(focusClass.course_code)}
+                </div>
+              )}
+              <div className="flex flex-col gap-1.5 mt-1">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold">
+                  <div className="bg-black/20 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 opacity-75" />
+                    {nextClassDay !== 'Today' ? `${nextClassDay} · ` : ''}{focusClass.start_time} – {focusClass.end_time}
                   </div>
-                )}
-                {(!currentClass && nextClassDay !== 'Today') && (
-                  <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1.5">Next Class</div>
-                )}
-                <div className="text-5xl font-black tracking-tight mb-2 drop-shadow-sm">{focusClass.course_code}</div>
-                <div className="flex flex-col gap-1.5">
-                  <div className="text-white/90 text-sm font-medium flex items-center gap-2">
+                  <div className="bg-white/20 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/20 flex items-center gap-1.5 drop-shadow-sm">
+                    {focusClass.room}
+                  </div>
+                  <div className="text-white/90 text-[11px] font-medium flex items-center gap-2 ml-1">
                     <span className="opacity-90">{focusClass.teacher || 'TBA'}</span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-sm font-bold mt-2">
-                    <div className="bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4 opacity-75" />
-                      {nextClassDay !== 'Today' ? `${nextClassDay} · ` : ''}{focusClass.start_time} – {focusClass.end_time}
-                    </div>
-                    <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/20 flex items-center gap-1.5 drop-shadow-sm">
-                      {focusClass.room}
-                    </div>
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="relative z-10 py-4">
-                <div className="text-3xl font-black mb-2 drop-shadow-sm">No classes today 🎉</div>
-                <p className="text-white/80 font-medium">Enjoy your free time!</p>
-              </div>
-            )}
-          </div>
-
-          {/* TODAY'S SCHEDULE */}
-          <SectionCard title="Today's Classes" icon={Calendar} action="Explore" onAction={() => navigate('/explore')}>
-            {todayClasses.length === 0 ? (
-              <EmptyState emoji="🎉" text="No classes today" />
-            ) : (
-              <div className="relative pl-4 space-y-4 py-2 border-l-2 border-slate-200 dark:border-slate-800 ml-3">
-                {todayClasses.map((c, i) => {
-                  const s = parseRoutineTime(c.start_time, now);
-                  const e = parseRoutineTime(c.end_time, now);
-                  const isPast = isBefore(e, now);
-                  const isCur = isBefore(s, now) && isAfter(e, now);
-                  const isNext = c === nextClass;
-                  return (
-                    <div key={i} onClick={() => setSelectedClass(c)} className="relative group cursor-pointer">
-                      {/* Timeline dot & line connector */}
-                      <div className="absolute -left-[23px] top-3.5 w-4 border-t-2 border-slate-200 dark:border-slate-800 transition-colors group-hover:border-purple-400" />
-                      <div className={`absolute -left-[29px] top-2 w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 transition-colors ${
-                        isCur ? 'border-purple-500 scale-125 shadow-[0_0_8px_rgba(168,85,247,0.5)]' 
-                        : isPast ? 'border-slate-300 dark:border-slate-600'
-                        : isNext ? 'border-purple-400 dark:border-purple-500 scale-110'
-                        : 'border-slate-400 dark:border-slate-500'
-                      }`} />
-                      
-                      <div className={`pl-3 pr-3 py-2.5 rounded-xl transition-all ${
-                        isPast ? 'opacity-[0.65] hover:opacity-100 hover:bg-slate-50 dark:hover:bg-slate-800/50' 
-                        : isCur ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50 -mt-1 -mb-1 shadow-sm' 
-                        : isNext ? 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                      }`}>
-                        <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-0.5">{c.start_time} – {c.end_time}</div>
-                        <div className={`font-black text-base tracking-tight flex items-center gap-2 ${isCur ? 'text-purple-700 dark:text-purple-300' : isPast ? 'text-slate-600 dark:text-slate-400' : 'text-slate-800 dark:text-slate-100'}`}>
-                          {c.course_code}
-                          {isCur && <span className="text-[9px] px-1.5 py-0.5 bg-purple-600 text-white rounded uppercase tracking-wider leading-none shadow-sm">Ongoing</span>}
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-2">
-                          <span className="font-bold">{c.room}</span>
-                          <span className="opacity-50">•</span>
-                          <span className="font-medium">{c.teacher || 'TBA'}</span>
-                          {c.group_code && (
-                            <>
-                              <span className="opacity-50">•</span>
-                              <span className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-500">{c.group_code}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </SectionCard>
+            </div>
+          ) : (
+            <div className="relative z-10 py-2">
+              <div className="text-2xl font-black mb-1 drop-shadow-sm">No classes today 🎉</div>
+              <p className="text-white/80 text-xs font-medium">Enjoy your free time!</p>
+            </div>
+          )}
         </div>
 
-        {/* ── Column 2: Widgets & Events ── */}
-        <div className="space-y-5">
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[160px] aspect-square flex flex-col">
-              <WeatherWidget />
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[160px] aspect-square flex flex-col">
-              <TodaySummaryWidget classes={todayClasses} now={now} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[160px] aspect-square flex flex-col">
-              <DateTimeWidget now={now} />
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[160px] aspect-square flex flex-col">
-              <DayProgressWidget now={now} />
-            </div>
-          </div>
-
-          {/* UPCOMING EVENTS */}
-          <SectionCard title="Upcoming (14 days)" icon={Calendar} action="View All" onAction={() => navigate('/planner')}>
-            {upcomingItems.length === 0 ? (
-              <EmptyState emoji="📅" text="No upcoming academic events" />
-            ) : (
-              <div className="space-y-2">
-                {upcomingItems.map((item, i) => {
-                  const meta = ITEM_TYPE_META[(item as any).item_type] || ITEM_TYPE_META.task;
-                  const Icon = meta.icon;
-                  const course = 'course' in item ? item.course : null;
-                  const date = 'date' in item ? item.date
-                    : 'deadline_date' in item ? item.deadline_date
-                    : (item as any).due_date || '';
-                  return (
-                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => navigate('/planner')}>
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${meta.color}`} />
+        {/* TODAY'S SCHEDULE */}
+        <SectionCard title="Today's Classes" icon={Calendar} action="Explore" onAction={() => navigate('/explore')}>
+          {todayClasses.length === 0 ? (
+            <EmptyState emoji="🎉" text="No classes today" />
+          ) : (
+            <div className="relative pl-3 space-y-2 py-1 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
+              {todayClasses.map((c, i) => {
+                const s = parseRoutineTime(c.start_time, now);
+                const e = parseRoutineTime(c.end_time, now);
+                const isPast = isBefore(e, now);
+                const isCur = isBefore(s, now) && isAfter(e, now);
+                const isNext = c === nextClass;
+                return (
+                  <div key={i} onClick={() => setSelectedClass(c)} className="relative group cursor-pointer">
+                    <div className="absolute -left-[20px] top-3.5 w-3 border-t-2 border-slate-200 dark:border-slate-800 transition-colors group-hover:border-purple-400" />
+                    <div className={`absolute -left-[24px] top-2.5 w-2.5 h-2.5 rounded-full border-2 bg-white dark:bg-slate-900 transition-colors ${
+                      isCur ? 'border-purple-500 scale-125 shadow-[0_0_8px_rgba(168,85,247,0.5)]' 
+                      : isPast ? 'border-slate-300 dark:border-slate-600'
+                      : isNext ? 'border-purple-400 dark:border-purple-500 scale-110'
+                      : 'border-slate-400 dark:border-slate-500'
+                    }`} />
+                    
+                    <div className={`pl-2 pr-2 py-2 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-4 ${
+                      isPast ? 'opacity-[0.7] hover:opacity-100 hover:bg-slate-50 dark:hover:bg-slate-800/50' 
+                      : isCur ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50 shadow-sm' 
+                      : isNext ? 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                    }`}>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{item.title}</div>
-                        <div className={`text-xs font-semibold ${meta.color}`}>{meta.label}{course ? ` · ${course}` : ''}</div>
+                        <div className={`font-black text-sm tracking-tight flex items-center gap-2 ${isCur ? 'text-purple-700 dark:text-purple-300' : isPast ? 'text-slate-600 dark:text-slate-400' : 'text-slate-800 dark:text-slate-100'}`}>
+                          {c.course_code}
+                          {isCur && <span className="text-[8px] px-1 py-0.5 bg-purple-600 text-white rounded uppercase tracking-wider leading-none shadow-sm">Now</span>}
+                        </div>
+                        {getCourseName(c.course_code) && (
+                          <div className={`text-[10px] font-medium mt-0.5 truncate ${isCur ? 'text-purple-600/80 dark:text-purple-300/80' : isPast ? 'text-slate-500' : 'text-slate-600 dark:text-slate-400'}`}>
+                            {getCourseName(c.course_code)}
+                          </div>
+                        )}
                       </div>
-                      <div className="text-xs text-slate-400 flex-shrink-0">{date}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </SectionCard>
-        </div>
-
-        {/* ── Column 3: Tasks & Deadlines ── */}
-        <div className="space-y-5">
-          {/* TASKS */}
-          <SectionCard title="Active Tasks" icon={CheckSquare} action="View All" onAction={() => navigate('/planner/tasks')}>
-            {allTasks.length === 0 ? (
-              <EmptyState emoji="✅" text="You're all caught up!" />
-            ) : (
-              <div className="space-y-2">
-                {allTasks.slice(0, 7).map(task => (
-                  <div key={task.id} className="flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 group transition-colors">
-                    <button
-                      onClick={() => handleTaskToggle(task.id)}
-                      title="Mark complete"
-                      className="w-5 h-5 flex-shrink-0 rounded-full border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center">
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate block">{task.title}</span>
-                      {task.course && <span className="text-xs text-purple-600 dark:text-purple-400">{task.course}</span>}
-                    </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <div className={`w-2 h-2 rounded-full ${PRIORITY_DOT[task.priority] || 'bg-slate-400'}`} title={task.priority} />
-                      {task.due_date && task.due_date < today && (
-                        <span title="Overdue"><AlertTriangle className="w-3.5 h-3.5 text-red-500" /></span>
-                      )}
+                      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 md:gap-0 mt-1 md:mt-0 flex-shrink-0">
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">{c.start_time} – {c.end_time}</div>
+                        <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded mt-0.5">
+                          {c.room}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ))}
-                {allTasks.length > 7 && (
-                  <p className="text-xs text-slate-400 text-center pt-1">+{allTasks.length - 7} more tasks</p>
-                )}
-              </div>
-            )}
-          </SectionCard>
+                );
+              })}
+            </div>
+          )}
+        </SectionCard>
 
-          {/* DEADLINES */}
-          <SectionCard title="Deadlines" icon={AlertTriangle} action="Assignments" onAction={() => navigate('/planner/assignments')}>
-            {overdueTotal > 0 && (
-              <div className="mb-3 flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-800/50 rounded-xl text-red-700 dark:text-red-400 text-xs font-semibold">
-                <AlertTriangle className="w-4 h-4" />
-                {overdueTotal} overdue item{overdueTotal > 1 ? 's' : ''}
-              </div>
-            )}
-            {allDeadlines.length === 0 ? (
-              <EmptyState emoji="🎯" text="No upcoming deadlines" />
-            ) : (
-              <div className="space-y-2.5">
-                {allDeadlines.map((a, i) => {
-                  const u = URGENCY_LABEL[(a as any)._urgency] || URGENCY_LABEL[2];
-                  return (
-                    <div key={i} className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => navigate('/planner/assignments')}>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{a.title}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{a.course || 'No course'} · {a.deadline_date}</div>
-                      </div>
-                      <span className={`text-xs font-bold flex-shrink-0 ${u.color}`}>{u.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </SectionCard>
+        {/* WEATHER & DAILY PROGRESS */}
+        <WeatherWidget />
+        <DailyProgressWidget classes={todayClasses} now={now} />
 
-          {/* PLANNER EVENTS TODAY */}
-          <SectionCard title="Events Today" icon={Zap} action="Planner" onAction={() => navigate('/planner')}>
-            {todayPlannerItems.length === 0 ? (
-              <EmptyState emoji="✨" text="No academic events today" />
-            ) : (
-              <div className="space-y-2">
-                {todayPlannerItems.map((item, i) => {
-                  const meta = ITEM_TYPE_META[(item as any).item_type] || ITEM_TYPE_META.task;
-                  const Icon = meta.icon;
-                  const course = 'course' in item ? item.course : null;
-                  return (
-                    <div key={i} className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors">
-                      <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${meta.color}`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{item.title}</div>
-                        <div className={`text-xs font-medium ${meta.color}`}>{meta.label}{course ? ` · ${course}` : ''}</div>
-                      </div>
+        {/* UPCOMING EVENTS */}
+        <SectionCard title="Upcoming (14 days)" icon={Calendar} action="Planner" onAction={() => navigate('/planner')}>
+          {upcomingItems.length === 0 ? (
+            <EmptyState emoji="📅" text="No upcoming events" />
+          ) : (
+            <div className="space-y-1">
+              {upcomingItems.map((item, i) => {
+                const meta = ITEM_TYPE_META[(item as any).item_type] || ITEM_TYPE_META.task;
+                const Icon = meta.icon;
+                const date = 'date' in item ? item.date
+                  : 'deadline_date' in item ? item.deadline_date
+                  : (item as any).due_date || '';
+                return (
+                  <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => navigate('/planner')}>
+                    <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${meta.color}`} />
+                    <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">{item.title}</div>
+                      <div className="text-[10px] font-medium text-slate-400 flex-shrink-0">{date}</div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </SectionCard>
-        </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </SectionCard>
+
+        {/* TASKS */}
+        <SectionCard title="Active Tasks" icon={CheckSquare} action="Tasks" onAction={() => navigate('/planner/tasks')}>
+          {allTasks.length === 0 ? (
+            <EmptyState emoji="✅" text="You're all caught up!" />
+          ) : (
+            <div className="space-y-1">
+              {allTasks.slice(0, 5).map(task => (
+                <div key={task.id} className="flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 group transition-colors">
+                  <button
+                    onClick={() => handleTaskToggle(task.id)}
+                    className="w-4 h-4 flex-shrink-0 rounded border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                  </button>
+                  <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">{task.title}</span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOT[task.priority] || 'bg-slate-400'}`} title={task.priority} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </SectionCard>
+
+        {/* DEADLINES */}
+        <SectionCard title="Deadlines" icon={AlertTriangle} action="Assignments" onAction={() => navigate('/planner/assignments')}>
+          {overdueTotal > 0 && (
+            <div className="mb-2 flex items-center gap-1.5 p-2 bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-800/50 rounded-lg text-red-700 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              {overdueTotal} overdue item{overdueTotal > 1 ? 's' : ''}
+            </div>
+          )}
+          {allDeadlines.length === 0 ? (
+            <EmptyState emoji="🎯" text="No upcoming deadlines" />
+          ) : (
+            <div className="space-y-1">
+              {allDeadlines.map((a, i) => {
+                const u = URGENCY_LABEL[(a as any)._urgency] || URGENCY_LABEL[2];
+                return (
+                  <div key={i} className="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => navigate('/planner/assignments')}>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">{a.title}</div>
+                    </div>
+                    <span className={`text-[10px] font-bold flex-shrink-0 ${u.color}`}>{u.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </SectionCard>
+
       </div>
 
       {/* ── Modals ── */}

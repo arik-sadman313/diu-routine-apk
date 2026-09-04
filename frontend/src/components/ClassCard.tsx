@@ -1,5 +1,5 @@
-
 import type { ClassRecord } from '../types/api';
+import { useAppContext } from '../context/AppContext';
 
 interface ClassCardProps {
   classRecord: ClassRecord;
@@ -15,6 +15,8 @@ const RECORD_TYPE_BADGE: Record<string, { label: string; className: string }> = 
 
 export function ClassCard({ classRecord, onClick }: ClassCardProps) {
   const badge = RECORD_TYPE_BADGE[classRecord.record_type];
+  const { getCourseName } = useAppContext();
+  const courseName = getCourseName(classRecord.course_code);
 
   return (
     <div
@@ -22,11 +24,17 @@ export function ClassCard({ classRecord, onClick }: ClassCardProps) {
       className="p-2.5 bg-white dark:bg-slate-800/90 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/80 cursor-pointer hover:shadow-md hover:border-purple-400 dark:hover:border-purple-500 transition-all flex flex-col h-full group overflow-hidden"
     >
       <div className="flex flex-col flex-1 min-w-0">
-        <div className="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight truncate" title={classRecord.course_code}>
+        <div className="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight truncate" title={courseName ? `${classRecord.course_code} - ${courseName}` : classRecord.course_code}>
           {classRecord.course_code}
         </div>
         
-        <div className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-1 truncate" title={classRecord.teacher || 'No teacher'}>
+        {courseName && (
+          <div className="text-[11px] leading-tight text-slate-600 dark:text-slate-400 font-medium truncate mb-0.5" title={courseName}>
+            {courseName}
+          </div>
+        )}
+        
+        <div className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-0.5 truncate" title={classRecord.teacher || 'No teacher'}>
           {classRecord.teacher || <span className="text-slate-400 dark:text-slate-500 italic">No teacher</span>}
         </div>
         

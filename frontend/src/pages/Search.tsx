@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { api } from '../services/api';
 import type { ClassRecord } from '../types/api';
 import { useAppContext } from '../context/AppContext';
-import { Search as SearchIcon, Loader2, X, MapPin, Users, User } from 'lucide-react';
+import { Search as SearchIcon, Loader2, X, MapPin, Users, User, BookOpen } from 'lucide-react';
 import { ClassDetailModal } from '../components/ClassDetailModal';
+import { BUILTIN_COURSES } from '../data/builtinCourses';
 
 const DAY_ORDER: Record<string, number> = {
   'Saturday': 0,
@@ -45,7 +46,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
 };
 
 export function Search() {
-  const { selectedVersion } = useAppContext();
+  const { selectedVersion, getCourseName, customCourses } = useAppContext();
   const versionId = selectedVersion?.id;
   
   const [query, setQuery] = useState('');
@@ -105,6 +106,28 @@ export function Search() {
       setLoading(false);
     }
   };
+
+  const matchedCourses = useMemo(() => {
+    if (!query.trim() || (activeFilter !== 'all' && activeFilter !== 'course')) return [];
+    const q = query.trim().toLowerCase();
+    
+    const allCourses = new Map<string, string>();
+    Object.entries(BUILTIN_COURSES).forEach(([code, name]) => {
+      allCourses.set(code.toUpperCase(), name);
+    });
+    customCourses.forEach(c => {
+      allCourses.set(c.course_code.toUpperCase(), c.course_name);
+    });
+    
+    const matches: { code: string; name: string }[] = [];
+    for (const [code, name] of allCourses.entries()) {
+      if (code.toLowerCase().includes(q) || name.toLowerCase().includes(q)) {
+        matches.push({ code, name });
+      }
+    }
+    
+    return matches.sort((a, b) => a.code.localeCompare(b.code));
+  }, [query, customCourses, activeFilter]);
 
   const filteredAndSortedResults = useMemo(() => {
     let filtered = results;
@@ -206,7 +229,7 @@ export function Search() {
           </div>
         )}
 
-        {searched && !loading && filteredAndSortedResults.length === 0 && (
+        {searched && !loading && filteredAndSortedResults.length === 0 && matchedCourses.length === 0 && (
           <div className="text-center py-20 flex flex-col items-center justify-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
             <div className="text-4xl mb-4">😕</div>
             <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-1">No results found</h3>
@@ -214,9 +237,33 @@ export function Search() {
           </div>
         )}
 
+        {searched && !loading && matchedCourses.length > 0 && (
+          <div className="space-y-4 mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400 px-1 border-b border-slate-200 dark:border-slate-800 pb-2">
+              <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider text-[11px]">
+                <BookOpen className="w-4 h-4" /> Course Catalog Matches
+              </span>
+              <span>{matchedCourses.length} result{matchedCourses.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {matchedCourses.map(c => (
+                <div key={c.code} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm">
+                  <h3 className="font-bold text-lg text-slate-900 dark:text-white break-words">
+                    <HighlightText text={c.code} highlight={query} />
+                  </h3>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 font-medium mt-1">
+                    <HighlightText text={c.name} highlight={query} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {filteredAndSortedResults.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400 px-1">
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400 px-1 border-b border-slate-200 dark:border-slate-800 pb-2">
+              <span className="font-bold uppercase tracking-wider text-[11px] text-slate-600 dark:text-slate-400">Scheduled Classes</span>
               <span>{filteredAndSortedResults.length} result{filteredAndSortedResults.length !== 1 ? 's' : ''}</span>
             </div>
             
@@ -228,9 +275,16 @@ export function Search() {
                   className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700/50 rounded-2xl p-4 cursor-pointer transition-all shadow-sm hover:shadow-md"
                 >
                   <div className="flex justify-between items-start mb-2 gap-2">
-                    <h3 className="font-bold text-lg text-slate-900 dark:text-white break-words overflow-hidden">
-                      <HighlightText text={c.course_code} highlight={query} />
-                    </h3>
+                    <div>
+                      <h3 className="font-bold text-lg text-slate-900 dark:text-white break-words overflow-hidden">
+                        <HighlightText text={c.course_code} highlight={query} />
+                      </h3>
+                      {getCourseName(c.course_code) && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                          <HighlightText text={getCourseName(c.course_code)!} highlight={query} />
+                        </div>
+                      )}
+                    </div>
                     <div className="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-md">
                       <HighlightText text={c.day} highlight={query} />
                     </div>

@@ -2,8 +2,55 @@ import { useState } from 'react';
 import { api } from '../services/api';
 import type { UploadResponse } from '../types/api';
 import { useAppContext } from '../context/AppContext';
-import { Upload as UploadIcon, FileUp, AlertTriangle, CheckCircle, Info, Loader2, ArrowRight } from 'lucide-react';
+import { Upload as UploadIcon, FileUp, AlertTriangle, CheckCircle, Info, Loader2, ArrowRight, Copy, ChevronDown, ChevronUp, FileJson, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const EXTRACTION_PROMPT = `You are a DIU class routine extraction assistant.
+
+I will upload a DIU routine PDF. Extract ALL scheduled classes from the entire PDF and create a downloadable \`.json\` file for my DIU Routine app.
+
+Use EXACTLY this structure:
+
+{
+  "format": "diu-routine-v1",
+  "semester": "",
+  "department": "",
+  "classes": [
+    {
+      "course_code": "",
+      "group_code": "",
+      "teacher": null,
+      "room": "",
+      "day": "",
+      "start_time": "",
+      "end_time": ""
+    }
+  ]
+}
+
+Rules:
+- Extract the semester/academic year directly from the PDF into \`semester\`.
+- Extract the department directly from the PDF into \`department\`.
+- Extract EVERY class from EVERY relevant page.
+- Keep each scheduled class as a separate entry.
+- Extract the complete \`group_code\`, including values such as \`RE_A(3C)\`.
+- Extract teacher and room exactly as shown. Use \`null\` for teacher only when unavailable.
+- Use only Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, or Friday for \`day\`.
+- Convert times to 24-hour \`HH:MM\`.
+- Never guess or invent missing information.
+- Do not add any fields.
+- Do NOT add \`course_name\`, \`batch\`, \`section\`, \`subgroup\`, \`special_group\`, or other fields.
+- Validate the JSON before creating the file.
+
+IMPORTANT:
+CREATE AND ATTACH A REAL DOWNLOADABLE \`.json\` FILE.
+Do not merely paste the JSON in the response.
+
+The \`.json\` file must contain ONLY the JSON data.
+
+Use a filename such as \`diu_routine_spring_2026.json\`.
+
+Do not paste the complete JSON into your response.`;
 
 export function Upload() {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +61,8 @@ export function Upload() {
   const [errorData, setErrorData] = useState<any>(null);
   const [corrections, setCorrections] = useState<any[]>([]);
   const [confirming, setConfirming] = useState(false);
+  const [promptExpanded, setPromptExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { refreshOptions, setSelectedVersionId } = useAppContext();
   const navigate = useNavigate();
@@ -44,7 +93,15 @@ export function Upload() {
       let data;
       if (file.name.toLowerCase().endsWith('.json')) {
         const text = await file.text();
-        const jsonContent = JSON.parse(text);
+        let jsonContent;
+        try {
+          jsonContent = JSON.parse(text);
+        } catch(e) {
+          throw new Error('The file is not valid JSON. You may have uploaded the original PDF instead of the JSON file, or the AI included markdown fences (```json).');
+        }
+        if (!jsonContent.format || jsonContent.format !== 'diu-routine-v1' || !Array.isArray(jsonContent.classes)) {
+           throw new Error('Invalid JSON structure. Make sure it follows the diu-routine-v1 format and contains the "classes" array.');
+        }
         data = await api.importJson(jsonContent);
       } else {
         data = await api.uploadRoutine(file);
@@ -138,43 +195,162 @@ export function Upload() {
       <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center transition-all">
         
         {!result && (
-          <div className="max-w-lg mx-auto py-8 px-4 sm:px-0">
-            <div className={`border-2 border-dashed rounded-3xl p-6 sm:p-12 transition-all duration-300 flex flex-col items-center justify-center ${file ? 'border-purple-400 bg-purple-50/50 dark:bg-purple-900/10' : 'border-slate-300 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
-              <FileUp className={`w-16 h-16 mb-5 transition-colors ${file ? 'text-purple-500' : 'text-slate-300 dark:text-slate-600'}`} />
-              
-              <label className="block cursor-pointer w-full text-center">
-                <span className="sr-only">Choose PDF or JSON</span>
-                <input 
-                  type="file" 
-                  accept=".pdf,.json,application/pdf,application/json" 
-                  onChange={handleFileChange}
-                  className="block w-full max-w-[280px] mx-auto text-sm text-slate-500 dark:text-slate-400
-                    file:mr-4 file:py-2.5 file:px-5
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-bold file:transition-colors
-                    file:bg-purple-100 file:text-purple-700
-                    hover:file:bg-purple-200
-                    dark:file:bg-purple-900/30 dark:file:text-purple-400 dark:hover:file:bg-purple-900/50"
-                />
-              </label>
-              
-              {file && (
-                <div className="mt-5 px-4 py-2 bg-white dark:bg-slate-800 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700">
-                  {file.name}
-                </div>
-              )}
+          <div className="max-w-2xl mx-auto py-4 px-2 sm:px-4 text-left space-y-8">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2">How to Import Your DIU Routine</h3>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">Follow these steps to convert your official PDF into a smart schedule.</p>
             </div>
 
-            <div className="mt-8">
-              <button
-                onClick={handleUpload}
-                disabled={!file || loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-purple-500/30 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3"
-              >
-                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <UploadIcon className="w-6 h-6" />}
-                {loading ? 'Processing & Importing...' : 'Import Routine'}
-              </button>
+            {/* Step 1 */}
+            <div className="flex gap-4">
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">1</div>
+              <div>
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Get your routine PDF</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">Download the official DIU class routine PDF that you want to use (e.g. <code>Spring 2026 CSE Routine.pdf</code>).</p>
+              </div>
             </div>
+
+            {/* Step 2 */}
+            <div className="flex gap-4">
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">2</div>
+              <div className="w-full min-w-0">
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Convert PDF to JSON</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">The app imports a canonical JSON format. Upload your PDF to an AI assistant (like ChatGPT or Gemini) and use the exact extraction prompt below.</p>
+                
+                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                  <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-slate-950">
+                    <div className="flex items-center gap-2">
+                      <FileJson className="w-5 h-5 text-purple-500" />
+                      <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">AI Extraction Prompt</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(EXTRACTION_PROMPT).then(() => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          });
+                        }}
+                        className="bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
+                      >
+                        {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copied ? 'Prompt copied!' : 'Copy Prompt'}
+                      </button>
+                      <button 
+                        onClick={() => setPromptExpanded(!promptExpanded)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        {promptExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  {promptExpanded && (
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 text-xs font-mono text-slate-600 dark:text-slate-400 whitespace-pre-wrap max-h-96 overflow-y-auto custom-scrollbar">
+                      {EXTRACTION_PROMPT}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-3 flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-lg">
+                  <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-800 dark:text-blue-300">
+                    <strong>IMPORTANT:</strong> The generated file must be valid JSON and follow the exact format above. Do not manually add fields like course_name, batch, or section. The app handles that automatically.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex gap-4">
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">3</div>
+              <div className="w-full min-w-0">
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Save the generated JSON</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">Copy the COMPLETE JSON response from the AI and save it into a file with a <code>.json</code> extension (e.g. <code>routine_spring_2026.json</code>). Make sure it only contains the JSON object.</p>
+                
+                <div className="bg-slate-900 rounded-lg p-3 text-xs font-mono text-slate-300 overflow-x-auto">
+                  <span className="text-slate-500 block mb-2">// Example Output:</span>
+{`{
+  "format": "diu-routine-v1",
+  "semester": "Spring 2026",
+  "department": "CSE",
+  "classes": [
+    {
+      "course_code": "CSE112",
+      "group_code": "72_U",
+      "teacher": "AAK",
+      "room": "KT-504",
+      "day": "Saturday",
+      "start_time": "08:30",
+      "end_time": "10:00"
+    }
+  ]
+}`}
+                </div>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex gap-4">
+              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-purple-200 dark:border-purple-800">4</div>
+              <div className="w-full min-w-0">
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3">Import into DIU Routine</h4>
+                
+                <div className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 transition-all duration-300 flex flex-col items-center justify-center text-center ${file ? 'border-purple-400 bg-purple-50/50 dark:bg-purple-900/10' : 'border-slate-300 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
+                  <FileUp className={`w-12 h-12 mb-4 transition-colors ${file ? 'text-purple-500' : 'text-slate-300 dark:text-slate-600'}`} />
+                  
+                  <label className="block cursor-pointer w-full text-center mb-2">
+                    <span className="sr-only">Choose JSON file</span>
+                    <input 
+                      type="file" 
+                      accept=".json,application/json,.pdf,application/pdf" 
+                      onChange={handleFileChange}
+                      className="block w-full max-w-[280px] mx-auto text-sm text-slate-500 dark:text-slate-400
+                        file:mr-4 file:py-2.5 file:px-5
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-bold file:transition-colors
+                        file:bg-purple-100 file:text-purple-700 file:cursor-pointer
+                        hover:file:bg-purple-200
+                        dark:file:bg-purple-900/30 dark:file:text-purple-400 dark:hover:file:bg-purple-900/50"
+                    />
+                  </label>
+                  
+                  {file && (
+                    <div className="mt-4 px-4 py-2 bg-white dark:bg-slate-800 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700 inline-block">
+                      {file.name}
+                    </div>
+                  )}
+                </div>
+
+                {file && (
+                  <div className="mt-4 animate-in fade-in zoom-in-95 duration-300">
+                    <button
+                      onClick={handleUpload}
+                      disabled={loading}
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-500/30 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3"
+                    >
+                      {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <UploadIcon className="w-6 h-6" />}
+                      {loading ? 'Processing & Importing...' : 'Import Routine'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="flex gap-4">
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">5</div>
+              <div className="w-full min-w-0 pb-4">
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Select your Batch & Section</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">After importing, go to Settings to select your specific Batch and Section so your personalized routine appears on the Dashboard.</p>
+                <button 
+                  onClick={() => navigate('/settings')}
+                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-bold transition-colors inline-flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" /> Go to Settings
+                </button>
+              </div>
+            </div>
+            
           </div>
         )}
 
@@ -438,7 +614,7 @@ export function Upload() {
             <div className="mt-8 flex justify-end gap-4">
               <button
                 onClick={() => {
-                  window.open(`http://localhost:8000/api/export/json/${result.version_id}`, '_blank');
+                  api.exportJsonAndSave(result.version_id);
                 }}
                 className="px-6 py-2.5 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >

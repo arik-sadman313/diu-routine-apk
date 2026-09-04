@@ -1,16 +1,20 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { api } from '../services/api';
-import type { RoutineVersion, OptionsResponse } from '../types/api';
+import type { RoutineVersion, OptionsResponse, CustomCourse } from '../types/api';
 import { usePreferences } from '../hooks/usePreferences';
 import { Loader2 } from 'lucide-react';
+import { BUILTIN_COURSES } from '../data/builtinCourses';
 
 interface AppContextType {
   versions: RoutineVersion[];
   selectedVersion: RoutineVersion | null;
   setSelectedVersionId: (id: number) => void;
   options: OptionsResponse | null;
+  customCourses: CustomCourse[];
+  getCourseName: (courseCode: string) => string | null;
   refreshOptions: () => Promise<void>;
+  refreshCustomCourses: () => Promise<void>;
   loading: boolean;
   error: string | null;
 }
@@ -21,26 +25,46 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [versions, setVersions] = useState<RoutineVersion[]>([]);
   const [selectedVersionId, setSelectedVersionIdState] = useState<number | null>(null);
   const [options, setOptions] = useState<OptionsResponse | null>(null);
+  const [customCourses, setCustomCourses] = useState<CustomCourse[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const { batch, section, setSection, setBatch } = usePreferences();
 
+  const loadCustomCourses = async () => {
+    try {
+      const res = await api.getCustomCourses();
+      setCustomCourses(res.courses);
+    } catch (err: any) {
+      console.error("Failed to load custom courses", err);
+    }
+  };
+
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
+      await loadCustomCourses();
       const versionsData = await api.getVersions();
       setVersions(versionsData.versions);
       
       let targetVersionId = selectedVersionId;
-      if (!targetVersionId && versionsData.versions.length > 0) {
+      const validIds = versionsData.versions.map(v => v.id);
+      
+      if (targetVersionId !== null && !validIds.includes(targetVersionId)) {
+        targetVersionId = validIds.length > 0 ? validIds[0] : null;
+        setSelectedVersionIdState(targetVersionId);
+      } else if (!targetVersionId && versionsData.versions.length > 0) {
         targetVersionId = versionsData.versions[0].id;
         setSelectedVersionIdState(targetVersionId);
       }
 
-      if (targetVersionId) {
+      if (!targetVersionId) {
+        setOptions(null);
+        setBatch('');
+        setSection('');
+      } else {
         const opts = await api.getOptions(targetVersionId);
         setOptions(opts);
 
@@ -76,6 +100,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSelectedVersionIdState(id);
   };
 
+  const getCourseName = (courseCode: string): string | null => {
+    if (!courseCode) return null;
+    const code = courseCode.trim().toUpperCase();
+    const custom = customCourses.find(c => c.course_code.trim().toUpperCase() === code);
+    if (custom) return custom.course_name;
+    return BUILTIN_COURSES[code] || null;
+  };
+
   const selectedVersion = versions.find(v => v.id === selectedVersionId) || null;
 
   return (
@@ -84,7 +116,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       selectedVersion,
       setSelectedVersionId,
       options,
+      customCourses,
+      getCourseName,
       refreshOptions: loadData,
+      refreshCustomCourses: loadCustomCourses,
       loading,
       error
     }}>
@@ -117,3 +152,4 @@ export function useAppContext() {
   }
   return context;
 }
+

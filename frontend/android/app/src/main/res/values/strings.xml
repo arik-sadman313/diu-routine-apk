@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DIU Routine Scrapper</string>
+    <string name="title_activity_main">DIU Routine Scrapper</string>
+    <string name="package_name">com.diu.routine</string>
+    <string name="custom_url_scheme">com.diu.routine</string>
+</resources>

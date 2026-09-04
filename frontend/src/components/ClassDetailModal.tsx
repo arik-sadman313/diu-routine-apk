@@ -41,7 +41,7 @@ function DetailRow({ icon: Icon, label, children }: { icon: any; label: string; 
 }
 
 export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetailModalProps) {
-  const { selectedVersion } = useAppContext();
+  const { selectedVersion, getCourseName } = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -55,6 +55,7 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
   const fullDateStr = format(dayDate, 'EEEE, MMMM d, yyyy');
 
   const typeMeta = RECORD_TYPE_META[classRecord.record_type] || RECORD_TYPE_META.original;
+  const courseName = getCourseName(classRecord.course_code);
 
   const handleHide = async () => {
     if (!selectedVersion) return;
@@ -100,10 +101,17 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
               <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{classRecord.course_code}</h3>
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${typeMeta.className}`}>
-                {typeMeta.label}
-              </span>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{classRecord.course_code}</h3>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${typeMeta.className}`}>
+                  {typeMeta.label}
+                </span>
+              </div>
+              {courseName && (
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
+                  {courseName}
+                </div>
+              )}
             </div>
           </div>
           <button 

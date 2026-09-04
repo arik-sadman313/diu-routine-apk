@@ -84,3 +84,12 @@ export interface OverrideRequest {
   special_group?: string | null;
   teacher?: string | null;
 }
+
+export interface CustomCourse {
+  course_code: string;
+  course_name: string;
+}
+
+export interface CoursesResponse {
+  courses: CustomCourse[];
+}

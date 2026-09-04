@@ -2,8 +2,10 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { usePreferences } from '../hooks/usePreferences';
 import { useTheme } from '../hooks/useTheme';
 import { useAppContext } from '../context/AppContext';
-import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2 } from 'lucide-react';
+import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus } from 'lucide-react';
+import { api } from '../services/api';
 
+// ... LocationSearch component remains the same ...
 function LocationSearch({ value, onChange }: { value: string; onChange: (val: string) => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
@@ -118,11 +120,55 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
 export function Settings() {
   const { batch, section, weatherLocation, setBatch, setSection, setWeatherLocation, clearPreferences } = usePreferences();
   const { theme, setTheme } = useTheme();
-  const { options, loading } = useAppContext();
+  const { options, loading, customCourses, refreshCustomCourses } = useAppContext();
   
   const [showSaved, setShowSaved] = useState(false);
   const mounted = useRef(false);
   const [showClearModal, setShowClearModal] = useState(false);
+
+  // Course Catalog state
+  const [courseCode, setCourseCode] = useState('');
+  const [courseName, setCourseName] = useState('');
+  const [editingCourse, setEditingCourse] = useState<string | null>(null);
+  const [savingCourse, setSavingCourse] = useState(false);
+
+  const handleAddCourse = async () => {
+    const code = courseCode.trim().toUpperCase();
+    const name = courseName.trim();
+    if (!code || !name) {
+      alert("Course code and name cannot be empty.");
+      return;
+    }
+    if (!editingCourse && customCourses.some(c => c.course_code === code)) {
+      alert("This course code already exists.");
+      return;
+    }
+
+    setSavingCourse(true);
+    try {
+      await api.addCustomCourse({ course_code: code, course_name: name });
+      await refreshCustomCourses();
+      setCourseCode('');
+      setCourseName('');
+      setEditingCourse(null);
+    } catch (err: any) {
+      alert(`Failed to save course: ${err.message}`);
+    } finally {
+      setSavingCourse(false);
+    }
+  };
+
+  const handleDeleteCourse = async (code: string, name: string) => {
+    if (!window.confirm(`Delete Course?\n\n${code}\n${name}\n\nThis will remove the custom course name from your catalog.`)) {
+      return;
+    }
+    try {
+      await api.deleteCustomCourse(code);
+      await refreshCustomCourses();
+    } catch (err: any) {
+      alert(`Failed to delete course: ${err.message}`);
+    }
+  };
 
   // Derived available sections based on selected batch
   const availableSections = options?.batch_sections
@@ -269,6 +315,96 @@ export function Settings() {
               <span className="font-bold text-sm">System</span>
             </button>
           </div>
+        </div>
+        
+        {/* Course Catalog Settings */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <BookOpen className="w-5 h-5 text-purple-500" />
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Course Catalog</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Manage course codes and subject names</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-3 mb-6 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Course Code</label>
+              <input
+                type="text"
+                placeholder="e.g. CSE450"
+                value={courseCode}
+                onChange={(e) => setCourseCode(e.target.value.toUpperCase())}
+                disabled={savingCourse || !!editingCourse}
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 uppercase"
+              />
+            </div>
+            <div className="flex-[2] space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Course Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Advanced Computer Vision"
+                value={courseName}
+                onChange={(e) => setCourseName(e.target.value)}
+                disabled={savingCourse}
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50"
+              />
+            </div>
+            <div className="flex items-end pb-0.5">
+              <button
+                onClick={handleAddCourse}
+                disabled={savingCourse}
+                className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
+              >
+                {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingCourse ? <CheckCircle2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
+                {editingCourse ? 'Save' : 'Add Course'}
+              </button>
+              {editingCourse && (
+                <button
+                  onClick={() => { setEditingCourse(null); setCourseCode(''); setCourseName(''); }}
+                  disabled={savingCourse}
+                  className="ml-2 px-3 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </div>
+
+          {customCourses.length > 0 ? (
+            <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+              {customCourses.map(c => (
+                <div key={c.course_code} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                  <div>
+                    <div className="font-bold text-sm text-slate-800 dark:text-slate-200">{c.course_code}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{c.course_name}</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setEditingCourse(c.course_code);
+                        setCourseCode(c.course_code);
+                        setCourseName(c.course_name);
+                      }}
+                      className="p-2 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCourse(c.course_code, c.course_name)}
+                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-slate-500 dark:text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+              No custom courses added.
+            </div>
+          )}
         </div>
         
         {/* Danger Zone */}

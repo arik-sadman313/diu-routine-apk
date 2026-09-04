@@ -15,12 +15,12 @@ data/
 node_modules/
 dist/
 frontend/dist/
+frontend/node_modules/
+
+# ── Capacitor / Android ───────────────────────────────────────────────────────
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/local.properties
 
 # ── Temporary / generated ─────────────────────────────────────────────────────
 output/
-
-# ── Large archive (not source) ────────────────────────────────────────────────
-*.zip
-
-# ── Test fixtures: tracked in tests/fixtures/, not ignored ───────────────────
-# (No blanket *.pdf rule — fixture PDFs are committed intentionally)

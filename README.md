@@ -1,59 +1,28 @@
-# DIU CSE Routine Backend
+# DIU Routine
 
-Personal, deterministic DIU CSE routine system. The canonical PDF parser is the validated merged parser and uses embedded PDF text + coordinates with PyMuPDF. It does **not** use OCR or AI.
+A simple DIU routine Android application.
 
-## Stack
-- Python
-- PyMuPDF
-- Pydantic
-- SQLite
-- FastAPI
-- Uvicorn
+## 📱 Download
 
-## Quick start
+The latest APK for DIU Routine is always available under the **GitHub Releases** section of this repository.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+👉 [**Download Latest APK**](https://github.com/arik-sadman313/diu-routine-apk/releases/latest)
 
-Parse/filter the supplied test routine:
+## Features
 
-```bash
-python run.py input/Summer-2026-Routine.pdf --batch 70 --section G
-```
+- **Offline-First**: Completely functional without an internet connection using local SQLite database.
+- **Easy Import**: Extract and import your routine from PDF files effortlessly.
+- **Smart Planner**: Keep track of your upcoming classes, assignments, and exams.
+- **Course Catalog**: Browse courses and manage your academic semester seamlessly.
+- **Push Notifications**: Receive timely local notifications for upcoming classes.
 
-Import into SQLite:
+## Installation
 
-```bash
-python db/import_routine.py input/Summer-2026-Routine.pdf --db data/routine.db
-```
+1. Download the `DIU-Routine.apk` file from the [Releases](https://github.com/arik-sadman313/diu-routine-apk/releases/latest) page.
+2. Open the downloaded file on your Android device.
+3. If prompted, grant your browser or file manager permission to "Install unknown apps".
+4. Follow the on-screen instructions to complete the installation.
 
-Run the API:
+## Updating
 
-```bash
-python run_api.py
-```
-
-Open the interactive API docs at `http://127.0.0.1:8000/docs`.
-
-## Main API endpoints
-
-- `GET /api/health`
-- `GET /api/versions`
-- `GET /api/options`
-- `GET /api/routine/{batch}/{section}`
-- `GET /api/classes`
-- `GET /api/search?q=...`
-- `POST /api/upload`
-
-## Validation result on Summer 2026 test PDF
-
-- Pages: 10
-- Records: 2007
-- Warnings: 0
-- Repairs: 5
-- Batch 70 / Section G: 18 records
-
-The parser preserves normal groups (`70_G`), lab subgroups (`70_G1`, `70_G2`) and special groups (`RE_A(...)`, etc.) without AI/OCR.
+Whenever a new version is released, simply download the newest `DIU-Routine.apk` from the latest GitHub Release and install it over your existing application. Your local database and settings will be preserved!

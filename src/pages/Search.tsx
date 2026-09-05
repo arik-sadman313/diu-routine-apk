@@ -58,10 +58,27 @@ export function Search() {
   const [selectedClass, setSelectedClass] = useState<ClassRecord | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-focus on mount
+  // Clear focus on unmount to prevent keyboard from staying open
   useEffect(() => {
-    inputRef.current?.focus();
+    // Focus the non-interactive container immediately to override WebView auto-focus
+    containerRef.current?.focus();
+    
+    console.log('[DIAGNOSTIC] Search page mounted. Current active element:', document.activeElement?.tagName);
+    
+    const handleFocus = (e: FocusEvent) => {
+      console.log('[DIAGNOSTIC] Window focus event fired:', e.target);
+    };
+    window.addEventListener('focus', handleFocus, true);
+    
+    return () => {
+      console.log('[DIAGNOSTIC] Search page unmounting.');
+      window.removeEventListener('focus', handleFocus, true);
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    };
   }, []);
 
   // Keyboard shortcut to clear
@@ -147,7 +164,11 @@ export function Search() {
   }, [results, activeFilter, query]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300 pb-10">
+    <div 
+      ref={containerRef}
+      tabIndex={-1}
+      className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300 pb-10 focus:outline-none"
+    >
       {/* Header */}
       <div className="page-header">
         <div className="page-header-content">
@@ -173,10 +194,15 @@ export function Search() {
             placeholder="Search courses, teachers, rooms, groups..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={(e) => {
+              console.log('[DIAGNOSTIC] Search input focused! Event:', e.type);
+              // Log the stack trace to see what triggered it
+              console.trace('[DIAGNOSTIC] Focus Stack Trace');
+            }}
           />
           {query && (
             <button
-              onClick={() => { setQuery(''); inputRef.current?.focus(); }}
+              onClick={() => { setQuery(''); }}
               className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
             >
               <div className="bg-slate-100 dark:bg-slate-800 rounded-full p-1">

@@ -2,7 +2,9 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { usePreferences } from '../hooks/usePreferences';
 import { useTheme } from '../hooks/useTheme';
 import { useAppContext } from '../context/AppContext';
-import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus, ChevronDown, GraduationCap, Users } from 'lucide-react';
+import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus, ChevronDown, GraduationCap, Users, Info, Bug } from 'lucide-react';
+import { AboutModal } from '../components/settings/AboutModal';
+import { BugReportModal } from '../components/settings/BugReportModal';
 import { api } from '../services/api';
 import { SelectionModal } from '../components/SelectionModal';
 // ... LocationSearch component remains the same ...
@@ -12,6 +14,7 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
   const [searching, setSearching] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -31,7 +34,13 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
   }, [value]);
 
   useEffect(() => {
-    if (!isOpen) setQuery('');
+    if (!isOpen) {
+      setQuery('');
+    } else {
+      setTimeout(() => {
+        containerRef.current?.focus();
+      }, 10);
+    }
   }, [isOpen]);
 
   useEffect(() => {
@@ -65,11 +74,14 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+        <div 
+          ref={containerRef}
+          tabIndex={-1}
+          className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 focus:outline-none"
+        >
           <div className="p-2 border-b border-slate-100 dark:border-slate-800">
             <input
               type="text"
-              autoFocus
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-shadow"
               placeholder="Search city (e.g. Dhaka)..."
               value={query}
@@ -142,6 +154,8 @@ export function Settings() {
 
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [showSectionModal, setShowSectionModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showBugReportModal, setShowBugReportModal] = useState(false);
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
@@ -506,6 +520,37 @@ export function Settings() {
             </div>
           )}
         </div>
+
+        {/* About & Support */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-2 overflow-hidden flex flex-col">
+          <button 
+            onClick={() => setShowAboutModal(true)}
+            className="flex items-center gap-3 w-full p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500">
+              <Info className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">About</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">App version & developer info</p>
+            </div>
+          </button>
+          
+          <div className="h-px bg-slate-100 dark:bg-slate-800 ml-16" />
+          
+          <button 
+            onClick={() => setShowBugReportModal(true)}
+            className="flex items-center gap-3 w-full p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+              <Bug className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">Report a Bug</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Help us improve the app</p>
+            </div>
+          </button>
+        </div>
         
         {/* Danger Zone */}
         <div className="flex justify-end pt-4">
@@ -576,6 +621,9 @@ export function Settings() {
         searchPlaceholder="Search section..."
         emptyText="No sections found"
       />
+
+      {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}
+      {showBugReportModal && <BugReportModal onClose={() => setShowBugReportModal(false)} />}
     </div>
   );
 }

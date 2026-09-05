@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, isAfter, isBefore, differenceInMinutes } from 'date-fns';
 import { usePreferences } from '../hooks/usePreferences';
@@ -14,10 +14,10 @@ import { ClassEditorModal } from '../components/ClassEditorModal';
 import { PlannerItemModal } from '../components/planner/PlannerItemModal';
 import { parseRoutineTime } from '../utils/time';
 import {
-  Clock, ArrowRight, Loader2, Calendar, Plus, BookOpen,
+  Clock, ArrowRight, Loader2, Calendar, BookOpen,
   FileText, ClipboardList, CheckSquare, Bell,
   AlertTriangle, ChevronRight, Cloud, CloudRain, CloudLightning, Sun, CloudFog, MapPin,
-  Search, X
+  Search, X, Users
 } from 'lucide-react';
 
 // ── helpers ─────────────────────────────────────────────────────────────────
@@ -76,6 +76,7 @@ function WeatherWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [recentLocations, setRecentLocations] = useState<any[]>(() => {
@@ -85,6 +86,14 @@ function WeatherWidget() {
       return [];
     }
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        containerRef.current?.focus();
+      }, 10);
+    }
+  }, [isOpen]);
 
   // Debounced Search
   useEffect(() => {
@@ -221,11 +230,14 @@ function WeatherWidget() {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-10 left-4 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div 
+            ref={containerRef}
+            tabIndex={-1}
+            className="absolute top-10 left-4 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 focus:outline-none"
+          >
             <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
               <Search className="w-4 h-4 text-slate-400 ml-1" />
               <input
-                autoFocus
                 type="text"
                 placeholder="Search city or location..."
                 value={query}
@@ -532,14 +544,7 @@ export function Dashboard() {
     loadPlanner();
   };
 
-  const QUICK_ACTIONS: { label: string; icon: any; onClick: () => void }[] = [
-    { label: 'Add Class',      icon: Calendar,     onClick: () => setAddingClass(true) },
-    { label: 'Assignment', icon: ClipboardList, onClick: () => setAddingType('assignment') },
-    { label: 'Quiz',       icon: FileText,     onClick: () => setAddingType('quiz') },
-    { label: 'Task',       icon: CheckSquare,  onClick: () => setAddingType('task') },
-    { label: 'Exam',       icon: BookOpen,     onClick: () => setAddingType('exam') },
-    { label: 'Reminder',   icon: Bell,         onClick: () => setAddingType('reminder') },
-  ];
+  // Quick actions array removed as requested
 
   // ── render ─────────────────────────────────────────────────────────────────
   return (
@@ -565,15 +570,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Quick actions bar */}
-        <div className="flex flex-wrap gap-1.5">
-          {QUICK_ACTIONS.map(qa => (
-            <button key={qa.label} onClick={qa.onClick}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-purple-300 hover:bg-purple-50 hover:text-purple-700 dark:hover:border-purple-500/50 dark:hover:bg-purple-900/20 dark:hover:text-purple-300 text-slate-600 dark:text-slate-300 rounded-lg transition-all shadow-sm focus:ring-2 focus:ring-purple-500/50 outline-none">
-              <Plus className="w-3 h-3" />{qa.label.replace('Add ', '')}
-            </button>
-          ))}
-        </div>
+        {/* Quick actions removed from Dashboard as requested */}
       </header>
 
       {/* ── Main Layout ── */}
@@ -636,6 +633,12 @@ export function Dashboard() {
                   <div className="bg-white/20 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/20 flex items-center gap-1.5 drop-shadow-sm">
                     {focusClass.room}
                   </div>
+                  {focusClass.group_code && (
+                    <div className="bg-white/10 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-1.5 drop-shadow-sm">
+                      <Users className="w-3.5 h-3.5 opacity-75" />
+                      {focusClass.group_code.includes('_') ? `Section ${focusClass.group_code.split('_')[1]}` : focusClass.group_code}
+                    </div>
+                  )}
                   <div className="text-white/90 text-[11px] font-medium flex items-center gap-2 ml-1">
                     <span className="opacity-90">{focusClass.teacher || 'TBA'}</span>
                   </div>
@@ -691,8 +694,16 @@ export function Dashboard() {
                       </div>
                       <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 md:gap-0 mt-1 md:mt-0 flex-shrink-0">
                         <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">{c.start_time} – {c.end_time}</div>
-                        <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded mt-0.5">
-                          {c.room}
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {c.group_code && (
+                            <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              {c.group_code.includes('_') ? `Sec ${c.group_code.split('_')[1]}` : c.group_code}
+                            </div>
+                          )}
+                          <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                            {c.room}
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -6,6 +6,7 @@ import { parseRoutineTime } from '../utils/time';
 import { format, startOfWeek, addDays } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useLiveTime } from '../hooks/useLiveTime';
+import { useAppContext } from '../context/AppContext';
 
 interface TimetableProps {
   classes: ClassRecord[];
@@ -18,6 +19,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 export function Timetable({ classes, showHidden = false, onRefresh = () => {}, viewMode = 'week' }: TimetableProps) {
+  const { getCourseName } = useAppContext();
   const [selectedClass, setSelectedClass] = useState<ClassRecord | null>(null);
   
   const now = useLiveTime(60000); // update every minute
@@ -291,19 +293,205 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
     );
   };
 
+  const renderMobileWeekView = () => {
+    const pixelsPerMinute = 1.2;
+    
+    return (
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col animate-in fade-in duration-300">
+        <div className="overflow-x-auto overflow-y-auto custom-scrollbar" style={{ maxHeight: '70vh' }}>
+          <div className="flex relative min-w-max">
+            
+            {/* Sticky Time Column */}
+            <div className="sticky left-0 z-20 w-14 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-r border-slate-200 dark:border-slate-800 flex-shrink-0 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
+              {/* Padding block for header alignment */}
+              <div className="h-8 border-b border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-800/50 sticky top-0 z-30" />
+              
+              <div className="relative w-full" style={{ height: `${totalMinutes * pixelsPerMinute + 48}px` }}>
+                {timeMarkers.map((mins) => {
+                  const h = Math.floor(mins / 60);
+                  const m = mins % 60;
+                  const label = `${pad(h)}:${pad(m)}`;
+                  const topOffset = 24; // Padding below header so labels don't overlap
+                  return (
+                    <div 
+                      key={mins}
+                      className="absolute w-full flex justify-center"
+                      style={{ top: `${(mins - minMinutes) * pixelsPerMinute + topOffset}px` }}
+                    >
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-1 -translate-y-1/2 rounded">
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Days Columns */}
+            <div className="flex">
+              {activeDays.map((day) => {
+                const dayClasses = classesByDay[day];
+                const isToday = day === todayStr;
+                const dayDate = addDays(weekStart, DAYS.indexOf(day));
+                
+                // Overlap algorithm
+                const sorted = [...dayClasses].sort((a, b) => {
+                   const aStart = parseRoutineTime(a.start_time).getTime();
+                   const bStart = parseRoutineTime(b.start_time).getTime();
+                   if (aStart !== bStart) return aStart - bStart;
+                   return parseRoutineTime(b.end_time).getTime() - parseRoutineTime(a.end_time).getTime();
+                });
+                
+                const columns: ClassRecord[][] = [];
+                sorted.forEach(c => {
+                   const start = parseRoutineTime(c.start_time).getTime();
+                   const end = parseRoutineTime(c.end_time).getTime();
+                   
+                   let placed = false;
+                   for (let i = 0; i < columns.length; i++) {
+                     const overlaps = columns[i].some(existing => {
+                        const eStart = parseRoutineTime(existing.start_time).getTime();
+                        const eEnd = parseRoutineTime(existing.end_time).getTime();
+                        return (start < eEnd && end > eStart);
+                     });
+                     if (!overlaps) {
+                       columns[i].push(c);
+                       placed = true;
+                       break;
+                     }
+                   }
+                   if (!placed) {
+                     columns.push([c]);
+                   }
+                });
+
+                return (
+                  <div key={day} className={`w-[160px] flex-shrink-0 relative border-r border-slate-200 dark:border-slate-800 ${isToday ? 'bg-purple-50/10 dark:bg-purple-900/5' : ''}`}>
+                    {/* Day Header */}
+                    <div className={`sticky top-0 z-10 h-8 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 ${isToday ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 shadow-sm' : 'bg-slate-50/95 dark:bg-slate-800/80 backdrop-blur-sm text-slate-700 dark:text-slate-300'}`}>
+                      <span className="text-xs font-bold tracking-wide">
+                        {day.slice(0,3).toUpperCase()} {format(dayDate, 'd')}
+                      </span>
+                    </div>
+
+                    {/* Classes Container */}
+                    <div className="relative w-full" style={{ height: `${totalMinutes * pixelsPerMinute + 48}px` }}>
+                      {/* Background grid lines */}
+                      {timeMarkers.map((mins) => (
+                        <div 
+                          key={mins}
+                          className="absolute w-full border-t border-slate-200/50 dark:border-slate-700/30"
+                          style={{ top: `${(mins - minMinutes) * pixelsPerMinute + 24}px` }}
+                        />
+                      ))}
+                      
+                      {/* NOW indicator */}
+                      {isToday && nowMins >= minMinutes && nowMins <= maxMinutes && (
+                        <div 
+                          className="absolute w-full z-10 border-t-2 border-red-500"
+                          style={{ top: `${(nowMins - minMinutes) * pixelsPerMinute + 24}px` }}
+                        >
+                          <div className="absolute left-0 -top-2.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-r-md shadow-sm">
+                            {format(now, 'h:mm a')}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Class Blocks */}
+                      {columns.map((colClasses, colIndex) => {
+                        const widthPct = 100 / columns.length;
+                        const leftPct = colIndex * widthPct;
+                        return colClasses.map(c => {
+                          const start = parseRoutineTime(c.start_time);
+                          const end = parseRoutineTime(c.end_time);
+                          const startMins = start.getHours() * 60 + start.getMinutes();
+                          const endMins = end.getHours() * 60 + end.getMinutes();
+                          
+                          const topPx = (startMins - minMinutes) * pixelsPerMinute + 24;
+                          const heightPx = (endMins - startMins) * pixelsPerMinute;
+                          
+                          const isVerySmall = heightPx < 50;
+                          const isMedium = heightPx >= 50 && heightPx < 100;
+                          const courseName = getCourseName(c.course_code);
+
+                          return (
+                            <div 
+                              key={c.id} 
+                              className="absolute p-0.5"
+                              style={{ 
+                                top: `${topPx}px`, 
+                                height: `${heightPx}px`,
+                                left: `${leftPct}%`,
+                                width: `${widthPct}%`
+                              }}
+                            >
+                              <div 
+                                onClick={() => setSelectedClass(c)}
+                                className={`w-full h-full rounded-md p-1.5 overflow-hidden cursor-pointer shadow-sm border transition-all active:scale-95 flex flex-col justify-start
+                                  ${c.record_type === 'hidden' 
+                                    ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 opacity-60' 
+                                    : 'bg-purple-100 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700'
+                                  }`}
+                              >
+                                <div className="text-[10px] font-black text-purple-900 dark:text-purple-100 leading-tight truncate">
+                                  {c.course_code}
+                                </div>
+                                {!isVerySmall && courseName && (
+                                  <div className="text-[9px] font-medium text-slate-700 dark:text-slate-300 leading-tight truncate mb-0.5">
+                                    {courseName}
+                                  </div>
+                                )}
+                                {!isVerySmall && (
+                                  <>
+                                    <div className="text-[8px] font-semibold text-purple-700/80 dark:text-purple-300/80 truncate">
+                                      {c.start_time}-{c.end_time}
+                                    </div>
+                                    <div className="text-[9px] font-bold text-slate-700 dark:text-slate-300 truncate mt-0.5">
+                                      {c.room}
+                                    </div>
+                                  </>
+                                )}
+                                {!isVerySmall && !isMedium && (
+                                  <>
+                                    {c.teacher && (
+                                      <div className="text-[8px] font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                                        {c.teacher}
+                                      </div>
+                                    )}
+                                    {c.group_code && (
+                                      <div className="text-[8px] font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                                        Gr: {c.group_code}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        });
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       {viewMode === 'week' ? (
-        <div className="hidden md:block animate-in fade-in duration-300">{renderTimeline()}</div>
+        <>
+          {/* Desktop Week View */}
+          <div className="hidden md:block animate-in fade-in duration-300">{renderTimeline()}</div>
+          {/* Mobile Week View */}
+          <div className="md:hidden animate-in fade-in duration-300">{renderMobileWeekView()}</div>
+        </>
       ) : (
         <div className="animate-in fade-in duration-300">{renderList()}</div>
-      )}
-      
-      {/* Fallback to list view on small screens if they are in week mode */}
-      {viewMode === 'week' && (
-        <div className="md:hidden animate-in fade-in duration-300">
-           {renderList()}
-        </div>
       )}
 
       <ClassDetailModal 

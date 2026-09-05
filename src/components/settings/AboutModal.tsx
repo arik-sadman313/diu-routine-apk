@@ -51,7 +51,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
         {/* Content */}
         <div className="p-6 space-y-6">
           <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-accent-500 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
               <span className="text-4xl font-black text-white tracking-tighter">DIU</span>
             </div>
             <h3 className="text-2xl font-black text-slate-900 dark:text-white">DIU Routine</h3>

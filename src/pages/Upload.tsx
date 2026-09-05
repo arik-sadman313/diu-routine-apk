@@ -220,7 +220,7 @@ export function Upload() {
                 <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
                   <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-slate-950">
                     <div className="flex items-center gap-2">
-                      <FileJson className="w-5 h-5 text-purple-500" />
+                      <FileJson className="w-5 h-5 text-accent-500" />
                       <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">AI Extraction Prompt</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export function Upload() {
                             setTimeout(() => setCopied(false), 2000);
                           });
                         }}
-                        className="bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
+                        className="bg-accent-100 hover:bg-accent-200 dark:bg-accent-900/30 dark:hover:bg-accent-900/50 text-accent-700 dark:text-accent-400 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
                       >
                         {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         {copied ? 'Prompt copied!' : 'Copy Prompt'}
@@ -291,12 +291,12 @@ export function Upload() {
 
             {/* Step 4 */}
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-purple-200 dark:border-purple-800">4</div>
+              <div className="w-8 h-8 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 flex items-center justify-center font-black flex-shrink-0 mt-0.5 border border-accent-200 dark:border-accent-800">4</div>
               <div className="w-full min-w-0">
                 <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3">Import into DIU Routine</h4>
                 
-                <div className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 transition-all duration-300 flex flex-col items-center justify-center text-center ${file ? 'border-purple-400 bg-purple-50/50 dark:bg-purple-900/10' : 'border-slate-300 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
-                  <FileUp className={`w-12 h-12 mb-4 transition-colors ${file ? 'text-purple-500' : 'text-slate-300 dark:text-slate-600'}`} />
+                <div className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 transition-all duration-300 flex flex-col items-center justify-center text-center ${file ? 'border-accent-400 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-300 dark:border-slate-700 hover:border-accent-400 dark:hover:border-accent-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
+                  <FileUp className={`w-12 h-12 mb-4 transition-colors ${file ? 'text-accent-500' : 'text-slate-300 dark:text-slate-600'}`} />
                   
                   <label className="block cursor-pointer w-full text-center mb-2">
                     <span className="sr-only">Choose JSON file</span>
@@ -308,9 +308,9 @@ export function Upload() {
                         file:mr-4 file:py-2.5 file:px-5
                         file:rounded-full file:border-0
                         file:text-sm file:font-bold file:transition-colors
-                        file:bg-purple-100 file:text-purple-700 file:cursor-pointer
-                        hover:file:bg-purple-200
-                        dark:file:bg-purple-900/30 dark:file:text-purple-400 dark:hover:file:bg-purple-900/50"
+                        file:bg-accent-100 file:text-accent-700 file:cursor-pointer
+                        hover:file:bg-accent-200
+                        dark:file:bg-accent-900/30 dark:file:text-accent-400 dark:hover:file:bg-accent-900/50"
                     />
                   </label>
                   
@@ -326,7 +326,7 @@ export function Upload() {
                     <button
                       onClick={handleUpload}
                       disabled={loading}
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-500/30 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3"
+                      className="w-full bg-accent-600 hover:bg-accent-700 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-accent-500/30 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3"
                     >
                       {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <UploadIcon className="w-6 h-6" />}
                       {loading ? 'Processing & Importing...' : 'Import Routine'}
@@ -465,7 +465,7 @@ export function Upload() {
                           newC[idx].course_code = e.target.value.toUpperCase();
                           setCorrections(newC);
                         }}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent-500 outline-none"
                         placeholder="e.g. CSE113"
                       />
                     </div>
@@ -479,7 +479,7 @@ export function Upload() {
                           newC[idx].group_code = e.target.value;
                           setCorrections(newC);
                         }}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent-500 outline-none"
                         placeholder="e.g. 64_M"
                       />
                     </div>
@@ -493,7 +493,7 @@ export function Upload() {
                           newC[idx].teacher = e.target.value;
                           setCorrections(newC);
                         }}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent-500 outline-none"
                         placeholder="e.g. MSH"
                       />
                     </div>
@@ -507,7 +507,7 @@ export function Upload() {
                           newC[idx].room = e.target.value;
                           setCorrections(newC);
                         }}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent-500 outline-none"
                         placeholder="e.g. G1-007"
                       />
                     </div>
@@ -529,7 +529,7 @@ export function Upload() {
               <button
                 onClick={handleConfirm}
                 disabled={confirming}
-                className="bg-accent hover:bg-purple-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-purple-500/30 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="bg-accent hover:bg-accent-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-accent-500/30 transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 {confirming ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
                 Validate & Import
@@ -631,7 +631,7 @@ export function Upload() {
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="bg-accent hover:bg-purple-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-purple-500/30 transition-all flex items-center gap-2"
+                className="bg-accent hover:bg-accent-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-accent-500/30 transition-all flex items-center gap-2"
               >
                 Go to Dashboard <ArrowRight className="w-4 h-4" />
               </button>

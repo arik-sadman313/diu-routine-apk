@@ -3,13 +3,134 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Default Accent (Purple) */
+    --color-accent-50: #faf5ff;
+    --color-accent-100: #f3e8ff;
+    --color-accent-200: #e9d5ff;
+    --color-accent-300: #d8b4fe;
+    --color-accent-400: #c084fc;
+    --color-accent-500: #a855f7;
+    --color-accent-600: #9333ea;
+    --color-accent-700: #7e22ce;
+    --color-accent-800: #6b21a8;
+    --color-accent-900: #581c87;
+    --color-accent-950: #3b0764;
+    
+    /* Font Size Modifiers (applied to html root font-size) */
+    /* By default, tailwind uses 16px (1rem). We scale using standard text-size-adjust or directly on HTML */
+    
+    /* Spacing Modifiers */
+    --spacing-scale: 1;
+  }
+
+  /* Accent Color Overrides */
+  :root[data-accent="blue"] {
+    --color-accent-50: #eff6ff;
+    --color-accent-100: #dbeafe;
+    --color-accent-200: #bfdbfe;
+    --color-accent-300: #93c5fd;
+    --color-accent-400: #60a5fa;
+    --color-accent-500: #3b82f6;
+    --color-accent-600: #2563eb;
+    --color-accent-700: #1d4ed8;
+    --color-accent-800: #1e40af;
+    --color-accent-900: #1e3a8a;
+    --color-accent-950: #172554;
+  }
+  :root[data-accent="green"] {
+    --color-accent-50: #f0fdf4;
+    --color-accent-100: #dcfce7;
+    --color-accent-200: #bbf7d0;
+    --color-accent-300: #86efac;
+    --color-accent-400: #4ade80;
+    --color-accent-500: #22c55e;
+    --color-accent-600: #16a34a;
+    --color-accent-700: #15803d;
+    --color-accent-800: #166534;
+    --color-accent-900: #14532d;
+    --color-accent-950: #052e16;
+  }
+  :root[data-accent="orange"] {
+    --color-accent-50: #fff7ed;
+    --color-accent-100: #ffedd5;
+    --color-accent-200: #fed7aa;
+    --color-accent-300: #fdba74;
+    --color-accent-400: #fb923c;
+    --color-accent-500: #f97316;
+    --color-accent-600: #ea580c;
+    --color-accent-700: #c2410c;
+    --color-accent-800: #9a3412;
+    --color-accent-900: #7c2d12;
+    --color-accent-950: #431407;
+  }
+  :root[data-accent="red"] {
+    --color-accent-50: #fef2f2;
+    --color-accent-100: #fee2e2;
+    --color-accent-200: #fecaca;
+    --color-accent-300: #fca5a5;
+    --color-accent-400: #f87171;
+    --color-accent-500: #ef4444;
+    --color-accent-600: #dc2626;
+    --color-accent-700: #b91c1c;
+    --color-accent-800: #991b1b;
+    --color-accent-900: #7f1d1d;
+    --color-accent-950: #450a0a;
+  }
+  :root[data-accent="pink"] {
+    --color-accent-50: #fdf2f8;
+    --color-accent-100: #fce7f3;
+    --color-accent-200: #fbcfe8;
+    --color-accent-300: #f9a8d4;
+    --color-accent-400: #f472b6;
+    --color-accent-500: #ec4899;
+    --color-accent-600: #db2777;
+    --color-accent-700: #be185d;
+    --color-accent-800: #9d174d;
+    --color-accent-900: #831843;
+    --color-accent-950: #500724;
+  }
+
+  /* Font Scaling */
+  html {
+    font-size: 16px; /* default */
+  }
+  html[data-font="small"] {
+    font-size: 14px;
+  }
+  html[data-font="large"] {
+    font-size: 18px;
+  }
+  html[data-font="extra-large"] {
+    font-size: 20px;
+  }
+
+  /* Density Scaling (CSS variable used in tailwind config) */
+  :root[data-density="compact"] {
+    --spacing-scale: 0.75;
+  }
+  :root[data-density="comfortable"] {
+    --spacing-scale: 1;
+  }
+  :root[data-density="spacious"] {
+    --spacing-scale: 1.25;
+  }
+
+  /* Reduced Motion */
+  html[data-reduced-motion="true"] * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   body {
     @apply bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased;
   }
 
   /* Global focus ring for accessibility */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-purple-500;
+    @apply outline-2 outline-offset-2 outline-accent-500;
   }
 }
 
@@ -37,7 +158,7 @@
   .select-field {
     @apply w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800
            rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200
-           focus:outline-none focus:ring-2 focus:ring-purple-500/50
+           focus:outline-none focus:ring-2 focus:ring-accent-500/50
            appearance-none disabled:opacity-50 disabled:cursor-not-allowed
            bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")]
            bg-no-repeat bg-right-4 bg-center pr-10;
@@ -51,7 +172,7 @@
     @apply flex items-center gap-3;
   }
   .page-header-icon {
-    @apply w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0 text-purple-600 dark:text-purple-400;
+    @apply w-10 h-10 bg-accent-100 dark:bg-accent-900 rounded-xl flex items-center justify-center flex-shrink-0 text-accent-600 dark:text-accent-400;
   }
   .page-header-text h2 {
     @apply text-2xl font-bold text-slate-900 dark:text-white tracking-tight;

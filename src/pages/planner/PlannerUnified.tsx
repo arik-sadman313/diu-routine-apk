@@ -185,7 +185,7 @@ export function PlannerUnified({ initialFilter = 'all', onEdit, refreshTrigger =
 
   if (loading) return (
     <div className="flex justify-center py-20">
-      <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+      <Loader2 className="w-8 h-8 animate-spin text-accent-500" />
     </div>
   );
 
@@ -213,7 +213,7 @@ export function PlannerUnified({ initialFilter = 'all', onEdit, refreshTrigger =
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                    ? 'bg-accent-600 text-white shadow-md shadow-accent-500/20'
                     : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -232,13 +232,13 @@ export function PlannerUnified({ initialFilter = 'all', onEdit, refreshTrigger =
               placeholder="Search items, courses..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-500/50"
             />
           </div>
           <select 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none"
+            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-accent-500/50 appearance-none"
           >
             <option value="all">All Status</option>
             <option value="pending">Todo / Pending</option>
@@ -250,8 +250,8 @@ export function PlannerUnified({ initialFilter = 'all', onEdit, refreshTrigger =
       {/* Content List */}
       {!hasAnyItems ? (
         <div className="py-20 flex flex-col items-center justify-center text-center px-4">
-          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle2 className="w-8 h-8 text-purple-500" />
+          <div className="w-16 h-16 bg-accent-100 dark:bg-accent-900/20 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8 text-accent-500" />
           </div>
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">You're all caught up 🎉</h3>
           <p className="text-slate-500 dark:text-slate-400 max-w-sm">

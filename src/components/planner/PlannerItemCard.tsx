@@ -8,7 +8,7 @@ const TYPE_META = {
   quiz:       { label: 'Quiz',       icon: FileText,      color: 'text-blue-600 dark:text-blue-400' },
   assignment: { label: 'Assignment', icon: ClipboardList, color: 'text-amber-600 dark:text-amber-500' },
   task:       { label: 'Task',       icon: CheckSquare,   color: 'text-emerald-600 dark:text-emerald-400' },
-  reminder:   { label: 'Reminder',   icon: Bell,          color: 'text-purple-600 dark:text-purple-400' },
+  reminder:   { label: 'Reminder',   icon: Bell,          color: 'text-accent-600 dark:text-accent-400' },
 } as const;
 
 const PRIORITY_COLOR = {
@@ -50,6 +50,19 @@ function isCompleted(item: PlannerItem): boolean {
 export function PlannerItemCard({ item, onEdit, onDelete, onToggleComplete, isOverdue }: PlannerItemCardProps) {
   const meta = TYPE_META[item.item_type as keyof typeof TYPE_META];
   
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
   if (!meta) {
     return (
       <div className="p-4 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 text-sm flex justify-between items-center shadow-sm">
@@ -72,19 +85,6 @@ export function PlannerItemCard({ item, onEdit, onDelete, onToggleComplete, isOv
   const course = 'course' in item ? item.course : null;
   const priority = 'priority' in item ? item.priority : null;
   const location = item.item_type === 'exam' ? (item as PlannerExam).room : null;
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    if (menuOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [menuOpen]);
 
   // Relative Date Logic
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -191,7 +191,7 @@ export function PlannerItemCard({ item, onEdit, onDelete, onToggleComplete, isOv
       {(course || location) && (
         <div className="flex items-center gap-3 mb-2 flex-wrap">
           {course && (
-            <div className={`text-xs font-semibold ${completed ? 'text-slate-400' : 'text-purple-600 dark:text-purple-400'}`}>
+            <div className={`text-xs font-semibold ${completed ? 'text-slate-400' : 'text-accent-600 dark:text-accent-400'}`}>
               {course}
             </div>
           )}

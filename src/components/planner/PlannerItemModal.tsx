@@ -155,7 +155,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
           <select
             name={name} value={value} onChange={handle}
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none"
           >
             {SELECT_OPTIONS[name].map(o => <option key={o} value={o}>{o}</option>)}
           </select>
@@ -168,7 +168,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
           <textarea
             name={name} value={value} onChange={handle} rows={3}
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none resize-y"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none resize-y"
           />
         </div>
       );
@@ -179,7 +179,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
           <input
             type="time" name={name} value={value} onChange={handle}
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none"
           />
         </div>
       );
@@ -190,7 +190,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
           <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
           <input
             type="date" name={name} value={value} onChange={handle}
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none"
           />
         </div>
       );
@@ -201,7 +201,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
         <input
           type="text" name={name} value={value} onChange={handle}
           required={label.includes('*')}
-          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"
+          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none"
         />
       </div>
     );
@@ -260,7 +260,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex items-center gap-2 px-5 py-2 font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-lg shadow-purple-500/30 transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-5 py-2 font-semibold text-white bg-accent-600 hover:bg-accent-700 rounded-lg shadow-lg shadow-accent-500/30 transition-all disabled:opacity-50">
               <Save className="w-4 h-4" />
               {loading ? 'Saving…' : 'Save'}
             </button>

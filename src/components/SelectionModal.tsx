@@ -73,7 +73,7 @@ export function SelectionModal({
       >
         <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-slate-50/50 dark:bg-slate-950/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+            <div className="w-10 h-10 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center text-accent-600 dark:text-accent-400 shrink-0">
               <Icon className="w-5 h-5" />
             </div>
             <div>
@@ -91,7 +91,7 @@ export function SelectionModal({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-shadow"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-shadow"
               placeholder={searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -114,19 +114,19 @@ export function SelectionModal({
                     onClick={() => setTempValue(opt)}
                     className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${
                       isSelected 
-                        ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800' 
+                        ? 'bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-800' 
                         : 'bg-transparent border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'
                     }`}
                   >
-                    <span className={`text-sm ${isSelected ? 'text-purple-700 dark:text-purple-300 font-bold' : 'text-slate-700 dark:text-slate-300 font-medium'}`}>
+                    <span className={`text-sm ${isSelected ? 'text-accent-700 dark:text-accent-300 font-bold' : 'text-slate-700 dark:text-slate-300 font-medium'}`}>
                       {opt}
                     </span>
                     <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center transition-colors ${
                       isSelected 
-                        ? 'border-purple-500' 
+                        ? 'border-accent-500' 
                         : 'border-slate-300 dark:border-slate-600'
                     }`}>
-                      {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-purple-500" />}
+                      {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-accent-500" />}
                     </div>
                   </button>
                 )
@@ -154,7 +154,7 @@ export function SelectionModal({
               }
             }}
             disabled={!tempValue}
-            className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:hover:bg-purple-600 rounded-xl shadow-sm transition-colors"
+            className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 disabled:opacity-50 disabled:hover:bg-accent-600 rounded-xl shadow-sm transition-colors"
           >
             Confirm
           </button>

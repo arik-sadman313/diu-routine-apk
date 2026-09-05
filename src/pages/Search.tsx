@@ -36,7 +36,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
     <>
       {parts.map((part, i) => 
         part.toLowerCase() === highlight.toLowerCase() ? (
-          <b key={i} className="text-purple-600 dark:text-purple-400 font-extrabold">{part}</b>
+          <b key={i} className="text-accent-600 dark:text-accent-400 font-extrabold">{part}</b>
         ) : (
           <span key={i}>{part}</span>
         )
@@ -185,12 +185,12 @@ export function Search() {
       <div className="space-y-3 sticky top-[60px] md:top-0 z-20 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md pt-2 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <SearchIcon className="h-5 w-5 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
+            <SearchIcon className="h-5 w-5 text-slate-400 group-focus-within:text-accent-500 transition-colors" />
           </div>
           <input
             ref={inputRef}
             type="text"
-            className="block w-full pl-12 pr-12 py-4 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 dark:focus:border-purple-500 shadow-sm transition-all text-base font-medium"
+            className="block w-full pl-12 pr-12 py-4 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-accent-500 dark:focus:border-accent-500 shadow-sm transition-all text-base font-medium"
             placeholder="Search courses, teachers, rooms, groups..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -227,7 +227,7 @@ export function Search() {
                 onClick={() => setActiveFilter(tab.id as any)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${
                   activeFilter === tab.id
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                    ? 'bg-accent-600 text-white shadow-md shadow-accent-500/20'
                     : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -241,7 +241,7 @@ export function Search() {
       <div className="relative min-h-[200px]">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-sm z-10 rounded-2xl">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+            <Loader2 className="w-8 h-8 animate-spin text-accent-500" />
           </div>
         )}
 
@@ -266,7 +266,7 @@ export function Search() {
         {searched && !loading && matchedCourses.length > 0 && (
           <div className="space-y-4 mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400 px-1 border-b border-slate-200 dark:border-slate-800 pb-2">
-              <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider text-[11px]">
+              <span className="flex items-center gap-1.5 text-accent-600 dark:text-accent-400 font-bold uppercase tracking-wider text-[11px]">
                 <BookOpen className="w-4 h-4" /> Course Catalog Matches
               </span>
               <span>{matchedCourses.length} result{matchedCourses.length !== 1 ? 's' : ''}</span>
@@ -298,7 +298,7 @@ export function Search() {
                 <div
                   key={c.id}
                   onClick={() => setSelectedClass(c)}
-                  className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700/50 rounded-2xl p-4 cursor-pointer transition-all shadow-sm hover:shadow-md"
+                  className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-accent-300 dark:hover:border-accent-700/50 rounded-2xl p-4 cursor-pointer transition-all shadow-sm hover:shadow-md"
                 >
                   <div className="flex justify-between items-start mb-2 gap-2">
                     <div>

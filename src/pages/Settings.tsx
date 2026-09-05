@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { usePreferences } from '../hooks/usePreferences';
 import { useTheme } from '../hooks/useTheme';
 import { useAppContext } from '../context/AppContext';
-import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus, ChevronDown, GraduationCap, Users, Info, Bug } from 'lucide-react';
+import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus, ChevronDown, GraduationCap, Users, Info, Bug, Palette, LayoutGrid, Clock, Eye, EyeOff } from 'lucide-react';
 import { AboutModal } from '../components/settings/AboutModal';
 import { BugReportModal } from '../components/settings/BugReportModal';
 import { api } from '../services/api';
@@ -66,7 +66,7 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
   return (
     <div className="relative" ref={wrapperRef}>
       <button 
-        className="w-full text-left bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 flex justify-between items-center text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-900"
+        className="w-full text-left bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500/50 flex justify-between items-center text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-900"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="truncate font-medium">{isOpen && query ? query : currentName}</span>
@@ -82,7 +82,7 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
           <div className="p-2 border-b border-slate-100 dark:border-slate-800">
             <input
               type="text"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-shadow"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-shadow"
               placeholder="Search city (e.g. Dhaka)..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -92,15 +92,15 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
           <div className="max-h-60 overflow-y-auto custom-scrollbar">
             <button
               onClick={() => { onChange('auto'); setIsOpen(false); }}
-              className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 dark:hover:bg-purple-900/20 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 transition-colors font-medium"
+              className="w-full text-left px-4 py-3 text-sm hover:bg-accent-50 dark:hover:bg-accent-900/20 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 transition-colors font-medium"
             >
-              <Navigation className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <Navigation className="w-4 h-4 text-accent-600 dark:text-accent-400" />
               Use Device Location
             </button>
             
             {searching ? (
               <div className="px-4 py-4 text-sm text-slate-500 flex items-center justify-center gap-2 border-t border-slate-50 dark:border-slate-800/50">
-                <Loader2 className="w-4 h-4 animate-spin text-purple-500" /> Searching...
+                <Loader2 className="w-4 h-4 animate-spin text-accent-500" /> Searching...
               </div>
             ) : results.length > 0 ? (
               results.map(r => (
@@ -132,7 +132,20 @@ function LocationSearch({ value, onChange }: { value: string; onChange: (val: st
 
 
 export function Settings() {
-  const { batch, section, weatherLocation, setBatch, setSection, setWeatherLocation, clearPreferences } = usePreferences();
+  const { 
+    batch, section, weatherLocation, 
+    setBatch, setSection, setWeatherLocation, 
+    accentColor, setAccentColor,
+    fontSize, setFontSize,
+    uiDensity, setUiDensity,
+    reduceAnimations, setReduceAnimations,
+    timeFormat, setTimeFormat,
+    showRoom, setShowRoom,
+    showTeacher, setShowTeacher,
+    showGroup, setShowGroup,
+    classDetailMode, setClassDetailMode,
+    clearPreferences 
+  } = usePreferences();
   const { theme, setTheme } = useTheme();
   const { options, loading, customCourses, refreshCustomCourses, setSelectedVersionId } = useAppContext();
   
@@ -270,7 +283,11 @@ export function Settings() {
     setShowSaved(true);
     const t = setTimeout(() => setShowSaved(false), 2000);
     return () => clearTimeout(t);
-  }, [batch, section, weatherLocation, theme]);
+  }, [
+    batch, section, weatherLocation, theme, 
+    accentColor, fontSize, uiDensity, reduceAnimations,
+    timeFormat, showRoom, showTeacher, showGroup, classDetailMode
+  ]);
 
   const handleClear = () => {
     clearPreferences();
@@ -302,7 +319,7 @@ export function Settings() {
         {/* Routine Update Status */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
           <div className="flex items-center gap-3 mb-5">
-            <BookOpen className="w-5 h-5 text-purple-500" />
+            <BookOpen className="w-5 h-5 text-accent-500" />
             <div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Routine</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Current Routine: {options ? `Version ${options.version_id}` : 'None'}</p>
@@ -317,7 +334,7 @@ export function Settings() {
                 {updateStatus === 'checking' && <span className="text-slate-500 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Checking GitHub...</span>}
                 {updateStatus === 'up-to-date' && <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Up to date</span>}
                 {updateStatus === 'success' && <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Routine updated successfully. {downloadedRoutine?.semester || 'The new routine'} is now available.</span>}
-                {updateStatus === 'update-available' && <span className="text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1">↑ Update available: {downloadedRoutine?.semester || 'New Routine'}</span>}
+                {updateStatus === 'update-available' && <span className="text-accent-600 dark:text-accent-400 font-bold flex items-center gap-1">↑ Update available: {downloadedRoutine?.semester || 'New Routine'}</span>}
                 {updateStatus === 'error' && <span className="text-red-500">{updateError}</span>}
               </div>
             </div>
@@ -325,7 +342,7 @@ export function Settings() {
             {updateStatus === 'update-available' ? (
               <div className="flex gap-2 w-full sm:w-auto">
                 <button onClick={() => setUpdateStatus('idle')} className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none">Later</button>
-                <button onClick={handlePerformUpdate} disabled={updating} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none flex items-center justify-center gap-2">
+                <button onClick={handlePerformUpdate} disabled={updating} className="px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none flex items-center justify-center gap-2">
                   {updating && <Loader2 className="w-4 h-4 animate-spin"/>}
                   Update Routine
                 </button>
@@ -355,7 +372,7 @@ export function Settings() {
               <button
                 onClick={() => setShowBatchModal(true)}
                 disabled={loading || !options}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm transition-shadow flex items-center justify-between text-left"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 text-sm transition-shadow flex items-center justify-between text-left"
               >
                 <span>{batch || 'Select Batch...'}</span>
                 <ChevronDown className="w-4 h-4 text-slate-400" />
@@ -370,7 +387,7 @@ export function Settings() {
               <button
                 onClick={() => setShowSectionModal(true)}
                 disabled={!batch || loading || availableSections.length === 0}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm transition-shadow flex items-center justify-between text-left"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 text-sm transition-shadow flex items-center justify-between text-left"
               >
                 <span>{section || 'Select Section...'}</span>
                 <ChevronDown className="w-4 h-4 text-slate-400" />
@@ -388,53 +405,247 @@ export function Settings() {
           </div>
         </div>
 
-        {/* Theme Settings */}
+        {/* Appearance Settings */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-5">Appearance</h3>
+          <div className="flex items-center gap-3 mb-5">
+            <Palette className="w-5 h-5 text-accent-500" />
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Appearance</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Customize the look and feel of the app</p>
+            </div>
+          </div>
           
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              onClick={() => setTheme('light')}
-              className={`flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 transition-all ${
-                theme === 'light' 
-                  ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 shadow-sm' 
-                  : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-purple-200 dark:hover:border-purple-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/10'
-              }`}
-            >
-              <Sun className={`w-6 h-6 ${theme === 'light' ? 'fill-purple-200 dark:fill-purple-800' : ''}`} />
-              <span className="font-bold text-sm">Light</span>
-            </button>
-            
-            <button
-              onClick={() => setTheme('dark')}
-              className={`flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 transition-all ${
-                theme === 'dark' 
-                  ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 shadow-sm' 
-                  : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-purple-200 dark:hover:border-purple-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/10'
-              }`}
-            >
-              <Moon className={`w-6 h-6 ${theme === 'dark' ? 'fill-purple-200 dark:fill-purple-800' : ''}`} />
-              <span className="font-bold text-sm">Dark</span>
-            </button>
+          <div className="space-y-6">
+            {/* Theme */}
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Theme</label>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => setTheme('light')}
+                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                    theme === 'light' 
+                      ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm' 
+                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-accent-200 dark:hover:border-accent-800 hover:bg-accent-50/50 dark:hover:bg-accent-900/10'
+                  }`}
+                >
+                  <Sun className={`w-5 h-5 ${theme === 'light' ? 'fill-accent-200 dark:fill-accent-800' : ''}`} />
+                  <span className="font-bold text-xs">Light</span>
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                    theme === 'dark' 
+                      ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm' 
+                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-accent-200 dark:hover:border-accent-800 hover:bg-accent-50/50 dark:hover:bg-accent-900/10'
+                  }`}
+                >
+                  <Moon className={`w-5 h-5 ${theme === 'dark' ? 'fill-accent-200 dark:fill-accent-800' : ''}`} />
+                  <span className="font-bold text-xs">Dark</span>
+                </button>
+                <button
+                  onClick={() => setTheme('system')}
+                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                    theme === 'system' 
+                      ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm' 
+                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-accent-200 dark:hover:border-accent-800 hover:bg-accent-50/50 dark:hover:bg-accent-900/10'
+                  }`}
+                >
+                  <Monitor className="w-5 h-5" />
+                  <span className="font-bold text-xs">System</span>
+                </button>
+              </div>
+            </div>
 
-            <button
-              onClick={() => setTheme('system')}
-              className={`flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 transition-all ${
-                theme === 'system' 
-                  ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 shadow-sm' 
-                  : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-purple-200 dark:hover:border-purple-800 hover:bg-purple-50/50 dark:hover:bg-purple-900/10'
-              }`}
-            >
-              <Monitor className="w-6 h-6" />
-              <span className="font-bold text-sm">System</span>
-            </button>
+            {/* Accent Color */}
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Accent Color</label>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { id: 'purple', class: 'bg-[#a855f7]' },
+                  { id: 'blue', class: 'bg-[#3b82f6]' },
+                  { id: 'green', class: 'bg-[#22c55e]' },
+                  { id: 'orange', class: 'bg-[#f97316]' },
+                  { id: 'red', class: 'bg-[#ef4444]' },
+                  { id: 'pink', class: 'bg-[#ec4899]' }
+                ].map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => setAccentColor(color.id as any)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 focus:ring-accent-500 ${color.class}`}
+                  >
+                    {accentColor === color.id && <CheckCircle2 className="w-5 h-5 text-white" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Font Size */}
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Font Size</label>
+                <div className="flex flex-col gap-2">
+                  {(['small', 'default', 'large', 'extra-large'] as const).map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setFontSize(size)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium border text-left transition-colors ${
+                        fontSize === size 
+                          ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300' 
+                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {size.charAt(0).toUpperCase() + size.slice(1).replace('-', ' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* UI Density */}
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">UI Density</label>
+                <div className="flex flex-col gap-2">
+                  {(['compact', 'comfortable', 'spacious'] as const).map((density) => (
+                    <button
+                      key={density}
+                      onClick={() => setUiDensity(density)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium border text-left transition-colors ${
+                        uiDensity === density 
+                          ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300' 
+                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {density.charAt(0).toUpperCase() + density.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Reduce Animations */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+              <div>
+                <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Reduce Animations</div>
+                <div className="text-xs text-slate-500">Minimize transitions and motion</div>
+              </div>
+              <button
+                onClick={() => setReduceAnimations(!reduceAnimations)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  reduceAnimations ? 'bg-accent-500' : 'bg-slate-300 dark:bg-slate-700'
+                }`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  reduceAnimations ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Timetable Settings */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <LayoutGrid className="w-5 h-5 text-accent-500" />
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Timetable</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Customize how your routine is displayed</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {/* Time Format */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 gap-4">
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-slate-400 mt-0.5" />
+                <div>
+                  <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Time Format</div>
+                  <div className="text-xs text-slate-500">Display 12-hour or 24-hour time</div>
+                </div>
+              </div>
+              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setTimeFormat('12h')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
+                    timeFormat === '12h' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  12h
+                </button>
+                <button
+                  onClick={() => setTimeFormat('24h')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
+                    timeFormat === '24h' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  24h
+                </button>
+              </div>
+            </div>
+
+            {/* Visibility Toggles */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={() => setShowRoom(!showRoom)}
+                className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                  showRoom ? 'border-accent-200 dark:border-accent-800 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                }`}
+              >
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Show Room</span>
+                {showRoom ? <Eye className="w-4 h-4 text-accent-500" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
+              </button>
+              
+              <button
+                onClick={() => setShowTeacher(!showTeacher)}
+                className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                  showTeacher ? 'border-accent-200 dark:border-accent-800 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                }`}
+              >
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Show Teacher</span>
+                {showTeacher ? <Eye className="w-4 h-4 text-accent-500" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
+              </button>
+
+              <button
+                onClick={() => setShowGroup(!showGroup)}
+                className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                  showGroup ? 'border-accent-200 dark:border-accent-800 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                }`}
+              >
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Show Group</span>
+                {showGroup ? <Eye className="w-4 h-4 text-accent-500" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
+              </button>
+            </div>
+
+            {/* Class Detail Mode */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+              <div>
+                <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Class Detail</div>
+                <div className="text-xs text-slate-500">Show full course names in cards</div>
+              </div>
+              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setClassDetailMode('compact')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
+                    classDetailMode === 'compact' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Compact
+                </button>
+                <button
+                  onClick={() => setClassDetailMode('detailed')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
+                    classDetailMode === 'detailed' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Detailed
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         
         {/* Course Catalog Settings */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
           <div className="flex items-center gap-3 mb-5">
-            <BookOpen className="w-5 h-5 text-purple-500" />
+            <BookOpen className="w-5 h-5 text-accent-500" />
             <div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Course Catalog</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Manage course codes and subject names</p>
@@ -450,7 +661,7 @@ export function Settings() {
                 value={courseCode}
                 onChange={(e) => setCourseCode(e.target.value.toUpperCase())}
                 disabled={savingCourse || !!editingCourse}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 uppercase"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 uppercase"
               />
             </div>
             <div className="flex-[2] space-y-1.5">
@@ -461,14 +672,14 @@ export function Settings() {
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
                 disabled={savingCourse}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50"
               />
             </div>
             <div className="flex items-end pb-0.5">
               <button
                 onClick={handleAddCourse}
                 disabled={savingCourse}
-                className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
               >
                 {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingCourse ? <CheckCircle2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
                 {editingCourse ? 'Save' : 'Add Course'}
@@ -500,7 +711,7 @@ export function Settings() {
                         setCourseCode(c.course_code);
                         setCourseName(c.course_name);
                       }}
-                      className="p-2 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+                      className="p-2 text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-900/20 rounded-lg transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>

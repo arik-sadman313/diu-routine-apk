@@ -60,7 +60,7 @@ export function PlannerCalendar({ onEdit, refreshTrigger = 0 }: { onEdit?: (item
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-purple-500" /></div>
+        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-accent-500" /></div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           

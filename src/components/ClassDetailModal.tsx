@@ -6,6 +6,8 @@ import { ClassEditorModal } from './ClassEditorModal';
 import { api } from '../services/api';
 import { useAppContext } from '../context/AppContext';
 import { useLiveTime } from '../hooks/useLiveTime';
+import { usePreferences } from '../hooks/usePreferences';
+import { formatRoutineTime } from '../utils/time';
 import { startOfWeek, addDays, format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Compass } from 'lucide-react';
@@ -42,6 +44,7 @@ function DetailRow({ icon: Icon, label, children }: { icon: any; label: string; 
 
 export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetailModalProps) {
   const { selectedVersion, getCourseName } = useAppContext();
+  const { timeFormat } = usePreferences();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -97,8 +100,8 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 flex-shrink-0 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <div className="w-8 h-8 flex-shrink-0 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-accent-600 dark:text-accent-400" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -127,7 +130,7 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
           <div className="grid grid-cols-2 gap-4">
             <DetailRow icon={Clock} label="Day & Time">
               <div>{fullDateStr}</div>
-              <div className="text-xs text-slate-500 font-normal mt-0.5">{classRecord.start_time} – {classRecord.end_time}</div>
+              <div className="text-xs text-slate-500 font-normal mt-0.5">{formatRoutineTime(classRecord.start_time, timeFormat)} – {formatRoutineTime(classRecord.end_time, timeFormat)}</div>
             </DetailRow>
             <DetailRow icon={MapPin} label="Room">
               {classRecord.room || <span className="text-slate-400 italic">—</span>}
@@ -217,7 +220,7 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
                   navigate(`/explore?batch=${classRecord.batch}&section=${classRecord.section}`);
                 }}
                 disabled={loading}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-sm shadow-purple-500/20 transition-all disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-white bg-accent-600 hover:bg-accent-700 rounded-xl shadow-sm shadow-accent-500/20 transition-all disabled:opacity-50"
               >
                 <Compass className="w-3.5 h-3.5" /> View in Explore
               </button>

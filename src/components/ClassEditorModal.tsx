@@ -108,49 +108,49 @@ export function ClassEditorModal({ mode, initialData, onClose, onSaved }: ClassE
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Course Code *</label>
-                <input required name="course_code" value={formData.course_code || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="e.g. CSE101" />
+                <input required name="course_code" value={formData.course_code || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" placeholder="e.g. CSE101" />
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Teacher</label>
-                <input name="teacher" value={formData.teacher || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="e.g. ABC" />
+                <input name="teacher" value={formData.teacher || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" placeholder="e.g. ABC" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Batch *</label>
-                <input required name="batch" value={formData.batch || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="60" />
+                <input required name="batch" value={formData.batch || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" placeholder="60" />
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Section *</label>
-                <input required name="section" value={formData.section || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="A" />
+                <input required name="section" value={formData.section || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" placeholder="A" />
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Group</label>
-                <input name="group_code" value={formData.group_code || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="e.g. 60_A" />
+                <input name="group_code" value={formData.group_code || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" placeholder="e.g. 60_A" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Day *</label>
-                <select required name="day" value={formData.day || 'Saturday'} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                <select required name="day" value={formData.day || 'Saturday'} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none">
                   {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Start Time *</label>
-                <input required type="time" name="start_time" value={formData.start_time || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                <input required type="time" name="start_time" value={formData.start_time || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" />
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">End Time *</label>
-                <input required type="time" name="end_time" value={formData.end_time || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                <input required type="time" name="end_time" value={formData.end_time || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" />
               </div>
             </div>
 
             <div className="space-y-1">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Room</label>
-              <input name="room" value={formData.room || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="e.g. KT-501" />
+              <input name="room" value={formData.room || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-accent-500 outline-none" placeholder="e.g. KT-501" />
             </div>
             
             </div>
@@ -160,7 +160,7 @@ export function ClassEditorModal({ mode, initialData, onClose, onSaved }: ClassE
             <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={loading} className="flex items-center gap-2 px-5 py-2 font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-lg shadow-purple-500/30 transition-all disabled:opacity-50">
+            <button type="submit" disabled={loading} className="flex items-center gap-2 px-5 py-2 font-semibold text-white bg-accent-600 hover:bg-accent-700 rounded-lg shadow-lg shadow-accent-500/30 transition-all disabled:opacity-50">
               <Save className="w-4 h-4" />
               Save Changes
             </button>

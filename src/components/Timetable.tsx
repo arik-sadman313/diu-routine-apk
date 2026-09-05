@@ -2,11 +2,12 @@ import { useState } from 'react';
 import type { ClassRecord } from '../types/api';
 import { ClassCard } from './ClassCard';
 import { ClassDetailModal } from './ClassDetailModal';
-import { parseRoutineTime } from '../utils/time';
+import { parseRoutineTime, formatRoutineTime } from '../utils/time';
 import { format, startOfWeek, addDays } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useLiveTime } from '../hooks/useLiveTime';
 import { useAppContext } from '../context/AppContext';
+import { usePreferences } from '../hooks/usePreferences';
 
 interface TimetableProps {
   classes: ClassRecord[];
@@ -20,6 +21,7 @@ const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'
 
 export function Timetable({ classes, showHidden = false, onRefresh = () => {}, viewMode = 'week' }: TimetableProps) {
   const { getCourseName } = useAppContext();
+  const { timeFormat, showRoom, showTeacher, showGroup, classDetailMode } = usePreferences();
   const [selectedClass, setSelectedClass] = useState<ClassRecord | null>(null);
   
   const now = useLiveTime(60000); // update every minute
@@ -105,7 +107,12 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
            {timeMarkers.map((mins) => {
              const h = Math.floor(mins / 60);
              const m = mins % 60;
-             const label = `${pad(h)}:${pad(m)}`;
+             let label = `${pad(h)}:${pad(m)}`;
+             if (timeFormat === '12h') {
+               const ampm = h >= 12 ? 'pm' : 'am';
+               const h12 = h % 12 || 12;
+               label = `${h12}:${pad(m)} ${ampm}`;
+             }
              return (
                <div 
                  key={mins} 
@@ -161,11 +168,11 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
             const dayDate = addDays(weekStart, DAYS.indexOf(day));
 
             return (
-              <div key={day} className={`relative flex group transition-colors ${isToday ? 'bg-purple-50/30 dark:bg-purple-900/10' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/10'}`} style={{ height: dayHeight }}>
+              <div key={day} className={`relative flex group transition-colors ${isToday ? 'bg-accent-50/30 dark:bg-accent-900/10' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/10'}`} style={{ height: dayHeight }}>
                 {/* Day Label */}
-                <div className={`w-24 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center z-10 sticky left-0 shadow-[1px_0_0_0_rgba(0,0,0,0.05)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] ${isToday ? 'bg-purple-50 dark:bg-purple-900/20' : 'bg-white dark:bg-slate-900'}`}>
-                  {isToday && <div className="absolute top-1 text-[8px] font-black tracking-widest text-purple-600 dark:text-purple-400 uppercase">Today</div>}
-                  <span className={`font-black text-sm tracking-wide ${isToday ? 'text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                <div className={`w-24 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center z-10 sticky left-0 shadow-[1px_0_0_0_rgba(0,0,0,0.05)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] ${isToday ? 'bg-accent-50 dark:bg-accent-900/20' : 'bg-white dark:bg-slate-900'}`}>
+                  {isToday && <div className="absolute top-1 text-[8px] font-black tracking-widest text-accent-600 dark:text-accent-400 uppercase">Today</div>}
+                  <span className={`font-black text-sm tracking-wide ${isToday ? 'text-accent-700 dark:text-accent-300' : 'text-slate-700 dark:text-slate-300'}`}>
                     {day.slice(0, 3).toUpperCase()} <span className="text-lg ml-0.5">{format(dayDate, 'd')}</span>
                   </span>
                 </div>
@@ -187,7 +194,7 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                       style={{ left: `${((nowMins - minMinutes) / totalMinutes) * 100}%` }}
                     >
                       <div className="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full absolute -top-2.5 -translate-x-1/2 whitespace-nowrap shadow-sm shadow-red-500/30">
-                        NOW · {format(now, 'h:mm a')}
+                        NOW · {format(now, timeFormat === '24h' ? 'HH:mm' : 'h:mm a').toLowerCase()}
                       </div>
                     </div>
                   )}
@@ -259,10 +266,10 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
            </button>
            <div className="flex flex-col items-center">
              <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200 text-lg">
-               <Calendar className="w-5 h-5 text-purple-500" />
+               <Calendar className="w-5 h-5 text-accent-500" />
                {currentActiveDay}, {format(addDays(weekStart, currentDayIndex), 'MMM d')}
              </div>
-             <button onClick={handleToday} className="text-[10px] font-bold text-purple-600 hover:text-purple-700 uppercase tracking-widest mt-0.5">Today</button>
+             <button onClick={handleToday} className="text-[10px] font-bold text-accent-600 hover:text-accent-700 uppercase tracking-widest mt-0.5">Today</button>
            </div>
            <button 
              onClick={handleNext} 
@@ -310,7 +317,12 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                 {timeMarkers.map((mins) => {
                   const h = Math.floor(mins / 60);
                   const m = mins % 60;
-                  const label = `${pad(h)}:${pad(m)}`;
+                  let label = `${pad(h)}:${pad(m)}`;
+                  if (timeFormat === '12h') {
+                    const ampm = h >= 12 ? 'pm' : 'am';
+                    const h12 = h % 12 || 12;
+                    label = `${h12}:${pad(m)} ${ampm}`;
+                  }
                   const topOffset = 24; // Padding below header so labels don't overlap
                   return (
                     <div 
@@ -366,9 +378,9 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                 });
 
                 return (
-                  <div key={day} className={`w-[160px] flex-shrink-0 relative border-r border-slate-200 dark:border-slate-800 ${isToday ? 'bg-purple-50/10 dark:bg-purple-900/5' : ''}`}>
+                  <div key={day} className={`w-[160px] flex-shrink-0 relative border-r border-slate-200 dark:border-slate-800 ${isToday ? 'bg-accent-50/10 dark:bg-accent-900/5' : ''}`}>
                     {/* Day Header */}
-                    <div className={`sticky top-0 z-10 h-8 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 ${isToday ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 shadow-sm' : 'bg-slate-50/95 dark:bg-slate-800/80 backdrop-blur-sm text-slate-700 dark:text-slate-300'}`}>
+                    <div className={`sticky top-0 z-10 h-8 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 ${isToday ? 'bg-accent-100 dark:bg-accent-900/40 text-accent-700 dark:text-accent-300 shadow-sm' : 'bg-slate-50/95 dark:bg-slate-800/80 backdrop-blur-sm text-slate-700 dark:text-slate-300'}`}>
                       <span className="text-xs font-bold tracking-wide">
                         {day.slice(0,3).toUpperCase()} {format(dayDate, 'd')}
                       </span>
@@ -392,7 +404,7 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                           style={{ top: `${(nowMins - minMinutes) * pixelsPerMinute + 24}px` }}
                         >
                           <div className="absolute left-0 -top-2.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-r-md shadow-sm">
-                            {format(now, 'h:mm a')}
+                            {format(now, timeFormat === '24h' ? 'HH:mm' : 'h:mm a').toLowerCase()}
                           </div>
                         </div>
                       )}
@@ -430,35 +442,37 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                                 className={`w-full h-full rounded-md p-1.5 overflow-hidden cursor-pointer shadow-sm border transition-all active:scale-95 flex flex-col justify-start
                                   ${c.record_type === 'hidden' 
                                     ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 opacity-60' 
-                                    : 'bg-purple-100 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700'
+                                    : 'bg-accent-100 dark:bg-accent-900/30 border-accent-200 dark:border-accent-800/50 hover:border-accent-300 dark:hover:border-accent-700'
                                   }`}
                               >
-                                <div className="text-[10px] font-black text-purple-900 dark:text-purple-100 leading-tight truncate">
+                                <div className="text-[10px] font-black text-accent-900 dark:text-accent-100 leading-tight truncate">
                                   {c.course_code}
                                 </div>
-                                {!isVerySmall && courseName && (
+                                {!isVerySmall && courseName && classDetailMode === 'detailed' && (
                                   <div className="text-[9px] font-medium text-slate-700 dark:text-slate-300 leading-tight truncate mb-0.5">
                                     {courseName}
                                   </div>
                                 )}
                                 {!isVerySmall && (
                                   <>
-                                    <div className="text-[8px] font-semibold text-purple-700/80 dark:text-purple-300/80 truncate">
-                                      {c.start_time}-{c.end_time}
+                                    <div className="text-[8px] font-semibold text-accent-700/80 dark:text-accent-300/80 truncate">
+                                      {formatRoutineTime(c.start_time, timeFormat)}-{formatRoutineTime(c.end_time, timeFormat)}
                                     </div>
-                                    <div className="text-[9px] font-bold text-slate-700 dark:text-slate-300 truncate mt-0.5">
-                                      {c.room}
-                                    </div>
+                                    {showRoom && (
+                                      <div className="text-[9px] font-bold text-slate-700 dark:text-slate-300 truncate mt-0.5">
+                                        {c.room}
+                                      </div>
+                                    )}
                                   </>
                                 )}
                                 {!isVerySmall && !isMedium && (
                                   <>
-                                    {c.teacher && (
+                                    {showTeacher && c.teacher && (
                                       <div className="text-[8px] font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
                                         {c.teacher}
                                       </div>
                                     )}
-                                    {c.group_code && (
+                                    {showGroup && c.group_code && (
                                       <div className="text-[8px] font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
                                         Gr: {c.group_code}
                                       </div>

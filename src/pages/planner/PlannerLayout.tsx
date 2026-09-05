@@ -37,7 +37,7 @@ export function PlannerLayout() {
     { type: 'task' as const,       label: 'Task',       icon: CheckSquare,  color: 'text-emerald-500' },
     { type: 'quiz' as const,       label: 'Quiz',       icon: FileText,     color: 'text-blue-500' },
     { type: 'exam' as const,       label: 'Exam',       icon: BookOpen,     color: 'text-red-500' },
-    { type: 'reminder' as const,   label: 'Reminder',   icon: Bell,         color: 'text-purple-500' },
+    { type: 'reminder' as const,   label: 'Reminder',   icon: Bell,         color: 'text-accent-500' },
   ];
 
   return (
@@ -64,7 +64,7 @@ export function PlannerLayout() {
               onClick={() => navigate('/planner')}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
                 !isCalendar 
-                  ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm' 
+                  ? 'bg-white dark:bg-slate-800 text-accent-600 dark:text-accent-400 shadow-sm' 
                   : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
@@ -74,7 +74,7 @@ export function PlannerLayout() {
               onClick={() => navigate('/planner/calendar')}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
                 isCalendar 
-                  ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm' 
+                  ? 'bg-white dark:bg-slate-800 text-accent-600 dark:text-accent-400 shadow-sm' 
                   : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
@@ -85,7 +85,7 @@ export function PlannerLayout() {
           <div className="relative">
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
             >
               <Plus className="w-4 h-4" /> Add <ChevronDown className="w-4 h-4 opacity-70" />
             </button>

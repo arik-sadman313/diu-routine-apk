@@ -1,5 +1,7 @@
 import type { ClassRecord } from '../types/api';
 import { useAppContext } from '../context/AppContext';
+import { usePreferences } from '../hooks/usePreferences';
+import { formatRoutineTime } from '../utils/time';
 
 interface ClassCardProps {
   classRecord: ClassRecord;
@@ -16,15 +18,21 @@ const RECORD_TYPE_BADGE: Record<string, { label: string; className: string }> = 
 export function ClassCard({ classRecord, onClick }: ClassCardProps) {
   const badge = RECORD_TYPE_BADGE[classRecord.record_type];
   const { getCourseName } = useAppContext();
-  const courseName = getCourseName(classRecord.course_code);
+  const { showRoom, showTeacher, showGroup, classDetailMode, timeFormat } = usePreferences();
+  
+  const fullCourseName = getCourseName(classRecord.course_code);
+  const courseName = classDetailMode === 'detailed' ? fullCourseName : null;
+  
+  const startTime = formatRoutineTime(classRecord.start_time, timeFormat);
+  const endTime = formatRoutineTime(classRecord.end_time, timeFormat);
 
   return (
     <div
       onClick={() => onClick(classRecord)}
-      className="p-2.5 bg-white dark:bg-slate-800/90 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/80 cursor-pointer hover:shadow-md hover:border-purple-400 dark:hover:border-purple-500 transition-all flex flex-col h-full group overflow-hidden"
+      className="p-2.5 bg-white dark:bg-slate-800/90 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/80 cursor-pointer hover:shadow-md hover:border-accent-400 dark:hover:border-accent-500 transition-all flex flex-col h-full group overflow-hidden"
     >
       <div className="flex flex-col flex-1 min-w-0">
-        <div className="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight truncate" title={courseName ? `${classRecord.course_code} - ${courseName}` : classRecord.course_code}>
+        <div className="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors leading-tight truncate" title={courseName ? `${classRecord.course_code} - ${courseName}` : classRecord.course_code}>
           {classRecord.course_code}
         </div>
         
@@ -34,18 +42,20 @@ export function ClassCard({ classRecord, onClick }: ClassCardProps) {
           </div>
         )}
         
-        <div className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-0.5 truncate" title={classRecord.teacher || 'No teacher'}>
-          {classRecord.teacher || <span className="text-slate-400 dark:text-slate-500 italic">No teacher</span>}
-        </div>
+        {showTeacher && (
+          <div className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-0.5 truncate" title={classRecord.teacher || 'No teacher'}>
+            {classRecord.teacher || <span className="text-slate-400 dark:text-slate-500 italic">No teacher</span>}
+          </div>
+        )}
         
         <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">
-          {classRecord.start_time} – {classRecord.end_time}
+          {startTime} – {endTime}
         </div>
       </div>
 
       <div className="flex justify-between items-end mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50 gap-1.5">
         <div className="flex gap-1.5 flex-wrap min-w-0">
-          {classRecord.group_code && (
+          {showGroup && classRecord.group_code && (
             <span 
               title={classRecord.group_code}
               className="bg-slate-100 dark:bg-slate-700/70 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-bold truncate max-w-[50%]"
@@ -53,12 +63,14 @@ export function ClassCard({ classRecord, onClick }: ClassCardProps) {
               {classRecord.group_code}
             </span>
           )}
-          <span 
-            title={classRecord.room}
-            className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 px-1.5 py-0.5 rounded text-[10px] font-bold truncate max-w-full"
-          >
-            {classRecord.room}
-          </span>
+          {showRoom && (
+            <span 
+              title={classRecord.room}
+              className="bg-accent-100 text-accent-700 dark:bg-accent-900/50 dark:text-accent-300 px-1.5 py-0.5 rounded text-[10px] font-bold truncate max-w-full"
+            >
+              {classRecord.room}
+            </span>
+          )}
         </div>
         
         {badge && (

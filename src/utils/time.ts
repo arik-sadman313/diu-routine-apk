@@ -1,4 +1,4 @@
-import { parse, setDay, addWeeks, isAfter } from 'date-fns';
+import { parse, setDay, addWeeks, isAfter, format } from 'date-fns';
 
 /**
  * Parses a routine time string (e.g., "08:30", "10:00", "01:00") into a full Date object.
@@ -56,4 +56,17 @@ export function getNextDayOccurrence(dayName: string, fromDate: Date = new Date(
     d = addWeeks(d, 1);
   }
   return d;
+}
+
+/**
+ * Formats a routine time string into the user's preferred format.
+ */
+export function formatRoutineTime(timeStr: string, timeFormat: '12h' | '24h'): string {
+  const d = parseRoutineTime(timeStr);
+  if (timeFormat === '24h') {
+    return format(d, 'HH:mm');
+  } else {
+    // 12-hour format, lower-case am/pm
+    return format(d, 'h:mm a').toLowerCase();
+  }
 }

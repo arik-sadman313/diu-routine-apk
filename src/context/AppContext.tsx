@@ -31,7 +31,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { batch, section, setSection, setBatch } = usePreferences();
+  const { 
+    batch, section, setSection, setBatch,
+    accentColor, fontSize, uiDensity, reduceAnimations 
+  } = usePreferences();
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.setAttribute('data-accent', accentColor);
+    root.setAttribute('data-font', fontSize);
+    root.setAttribute('data-density', uiDensity);
+    root.setAttribute('data-reduced-motion', String(reduceAnimations));
+  }, [accentColor, fontSize, uiDensity, reduceAnimations]);
 
   const loadCustomCourses = async () => {
     try {
@@ -127,7 +138,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }}>
       {initialLoad ? (
         <div className="flex h-screen w-full items-center justify-center bg-slate-50 dark:bg-slate-950">
-          <div className="flex flex-col items-center gap-4 text-purple-500">
+          <div className="flex flex-col items-center gap-4 text-accent-500">
             <Loader2 className="w-12 h-12 animate-spin" />
             <span className="font-semibold text-slate-700 dark:text-slate-300">Loading DIU Routine...</span>
           </div>

@@ -19,7 +19,7 @@ const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 const TYPE_DOT: Record<string, string> = {
   exam: 'bg-red-500', quiz: 'bg-blue-500', assignment: 'bg-amber-500',
-  task: 'bg-emerald-500', reminder: 'bg-purple-500',
+  task: 'bg-emerald-500', reminder: 'bg-accent-500',
 };
 
 function pad(n: number) { return String(n).padStart(2, '0'); }
@@ -81,7 +81,7 @@ export function CalendarView({ events, onDayClick, year, month, selectedDate, on
               onClick={() => onDayClick?.(iso, dayEvents)}
               className={`h-20 sm:h-24 p-2 rounded-2xl cursor-pointer transition-all border-2 relative overflow-hidden group
                 ${isSelected 
-                  ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/10 dark:border-purple-500/50' 
+                  ? 'border-accent-500 bg-accent-50/50 dark:bg-accent-900/10 dark:border-accent-500/50' 
                   : isToday
                   ? 'border-transparent bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/80'
                   : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40'}
@@ -89,7 +89,7 @@ export function CalendarView({ events, onDayClick, year, month, selectedDate, on
             >
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ml-auto transition-colors
                 ${isToday && !isSelected ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900' 
-                : isSelected ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
+                : isSelected ? 'bg-accent-600 text-white shadow-md shadow-accent-500/30'
                 : 'text-slate-700 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'}
               `}>
                 {day}

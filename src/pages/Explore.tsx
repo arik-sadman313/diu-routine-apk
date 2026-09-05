@@ -120,7 +120,7 @@ export function Explore() {
               <button
                 onClick={() => setShowBatchModal(true)}
                 disabled={optionsLoading || !options}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
               >
                 <span>{selectedBatch || 'Select…'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -134,7 +134,7 @@ export function Explore() {
               <button
                 onClick={() => setShowSectionModal(true)}
                 disabled={!selectedBatch || optionsLoading || availableSections.length === 0}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
               >
                 <span>{selectedSection || 'Select…'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -148,7 +148,7 @@ export function Explore() {
               <button
                 onClick={() => setShowGroupModal(true)}
                 disabled={!hasSelection || uniqueGroups.length === 0}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 text-sm font-medium flex items-center justify-between text-left"
               >
                 <span>{selectedGroup || 'All Groups'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -168,7 +168,7 @@ export function Explore() {
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
                  disabled={!hasSelection}
-                 className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 font-medium"
+                 className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500/50 disabled:opacity-50 font-medium"
                />
              </div>
           </div>
@@ -185,7 +185,7 @@ export function Explore() {
       {/* Loading */}
       {loading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-7 h-7 animate-spin text-purple-500" />
+          <Loader2 className="w-7 h-7 animate-spin text-accent-500" />
         </div>
       )}
 
@@ -204,13 +204,13 @@ export function Explore() {
             <div className="flex items-center gap-2 bg-slate-200/50 dark:bg-slate-800 p-1 rounded-lg">
               <button 
                 onClick={() => setViewMode('week')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${viewMode === 'week' ? 'bg-white dark:bg-slate-700 text-purple-700 dark:text-purple-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${viewMode === 'week' ? 'bg-white dark:bg-slate-700 text-accent-700 dark:text-accent-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
               >
                 <LayoutGrid className="w-3.5 h-3.5" /> Week
               </button>
               <button 
                 onClick={() => setViewMode('list')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white dark:bg-slate-700 text-purple-700 dark:text-purple-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white dark:bg-slate-700 text-accent-700 dark:text-accent-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
               >
                 <List className="w-3.5 h-3.5" /> List
               </button>
@@ -222,7 +222,7 @@ export function Explore() {
                   type="checkbox" 
                   checked={showHidden} 
                   onChange={(e) => setShowHidden(e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 w-3.5 h-3.5"
+                  className="rounded text-accent-600 focus:ring-accent-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 w-3.5 h-3.5"
                 />
                 <Eye className="w-3.5 h-3.5" />
                 Show Hidden

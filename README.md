@@ -1,28 +1,42 @@
 # DIU Routine
 
-A simple DIU routine Android application.
+Your class routine, simplified.
 
 ## 📱 Download
 
-The latest APK for DIU Routine is always available under the **GitHub Releases** section of this repository.
+👉 [**Download Latest APK (v1.0.0)**](https://github.com/arik-sadman313/diu-routine-apk/releases/latest)
 
-👉 [**Download Latest APK**](https://github.com/arik-sadman313/diu-routine-apk/releases/latest)
+## What is DIU Routine?
 
-## Features
+DIU Routine is a privacy-first, offline-ready Android application designed specifically for students to manage their class routines, tasks, and upcoming exams.
 
-- **Offline-First**: Completely functional without an internet connection using local SQLite database.
-- **Easy Import**: Extract and import your routine from PDF files effortlessly.
-- **Smart Planner**: Keep track of your upcoming classes, assignments, and exams.
-- **Course Catalog**: Browse courses and manage your academic semester seamlessly.
-- **Push Notifications**: Receive timely local notifications for upcoming classes.
+### Features
+- **Offline-First:** All your data and preferences stay on your device.
+- **Developer-Managed Routine Updates:** The class routine data is maintained by the developer on GitHub and can be fetched seamlessly within the app. No more manual PDF extraction!
+- **Smart Planner:** Keep track of your upcoming classes, assignments, and exams.
+- **Search and Explore:** Easily find your classes and groups.
+- **Local Notifications:** Receive timely reminders before your classes.
+- **Custom Course Catalog:** Add custom courses or override existing schedules.
+- **Appearance Customization:** Full control over Themes, UI Density, and Accent Colors.
 
 ## Installation
 
-1. Download the `DIU-Routine.apk` file from the [Releases](https://github.com/arik-sadman313/diu-routine-apk/releases/latest) page.
+1. Download the latest `DIU-Routine-v1.0.0.apk` from the [Releases](https://github.com/arik-sadman313/diu-routine-apk/releases/latest) page.
 2. Open the downloaded file on your Android device.
 3. If prompted, grant your browser or file manager permission to "Install unknown apps".
 4. Follow the on-screen instructions to complete the installation.
 
-## Updating
+## Routine Updates
 
-Whenever a new version is released, simply download the newest `DIU-Routine.apk` from the latest GitHub Release and install it over your existing application. Your local database and settings will be preserved!
+Whenever a new semester routine is available, you do not need to download a new APK. Simply go to **Settings > Routine Data** inside the app and tap **Check for Updates**. The app will automatically pull the latest official routine data from the cloud.
+
+## Legal & Developer Info
+
+- **Developer:** [Arik Sadman](https://github.com/arik-sadman313)
+- **Privacy Policy:** [Read our Privacy Policy](https://github.com/arik-sadman313/diu-routine-apk/blob/main/PRIVACY.md)
+- **Open Source Licenses:** [View Third-Party Licenses](https://github.com/arik-sadman313/diu-routine-apk/blob/main/LICENSES.md)
+
+## Open Source
+
+This repository contains the bundled Android APK distribution project for DIU Routine. 
+Source code and issue tracking are handled directly by the developer. Bug reports can be submitted through the in-app "Report a Bug" feature.

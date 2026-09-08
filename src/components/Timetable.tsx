@@ -168,11 +168,11 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
             const dayDate = addDays(weekStart, DAYS.indexOf(day));
 
             return (
-              <div key={day} className={`relative flex group transition-colors ${isToday ? 'bg-accent-50/30 dark:bg-accent-900/10' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/10'}`} style={{ height: dayHeight }}>
+              <div key={day} className={`relative flex group transition-colors ${isToday ? 'bg-accent-soft/30' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/10'}`} style={{ height: dayHeight }}>
                 {/* Day Label */}
-                <div className={`w-24 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center z-10 sticky left-0 shadow-[1px_0_0_0_rgba(0,0,0,0.05)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] ${isToday ? 'bg-accent-50 dark:bg-accent-900/20' : 'bg-white dark:bg-slate-900'}`}>
-                  {isToday && <div className="absolute top-1 text-[8px] font-black tracking-widest text-accent-600 dark:text-accent-400 uppercase">Today</div>}
-                  <span className={`font-black text-sm tracking-wide ${isToday ? 'text-accent-700 dark:text-accent-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                <div className={`w-24 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center z-10 sticky left-0 shadow-[1px_0_0_0_rgba(0,0,0,0.05)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] ${isToday ? 'bg-accent-soft' : 'bg-white dark:bg-slate-900'}`}>
+                  {isToday && <div className="absolute top-1 text-[8px] font-black tracking-widest text-accent uppercase">Today</div>}
+                  <span className={`font-black text-sm tracking-wide ${isToday ? 'text-accent-soft-foreground' : 'text-slate-700 dark:text-slate-300'}`}>
                     {day.slice(0, 3).toUpperCase()} <span className="text-lg ml-0.5">{format(dayDate, 'd')}</span>
                   </span>
                 </div>
@@ -378,9 +378,9 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                 });
 
                 return (
-                  <div key={day} className={`w-[160px] flex-shrink-0 relative border-r border-slate-200 dark:border-slate-800 ${isToday ? 'bg-accent-50/10 dark:bg-accent-900/5' : ''}`}>
+                  <div key={day} className={`w-[160px] flex-shrink-0 relative border-r border-slate-200 dark:border-slate-800 ${isToday ? 'bg-accent-soft/20' : ''}`}>
                     {/* Day Header */}
-                    <div className={`sticky top-0 z-10 h-8 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 ${isToday ? 'bg-accent-100 dark:bg-accent-900/40 text-accent-700 dark:text-accent-300 shadow-sm' : 'bg-slate-50/95 dark:bg-slate-800/80 backdrop-blur-sm text-slate-700 dark:text-slate-300'}`}>
+                    <div className={`sticky top-0 z-10 h-8 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 ${isToday ? 'bg-accent-soft text-accent-soft-foreground shadow-sm' : 'bg-slate-50/95 dark:bg-slate-800/80 backdrop-blur-sm text-slate-700 dark:text-slate-300'}`}>
                       <span className="text-xs font-bold tracking-wide">
                         {day.slice(0,3).toUpperCase()} {format(dayDate, 'd')}
                       </span>
@@ -442,24 +442,24 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                                 className={`w-full h-full rounded-md p-1.5 overflow-hidden cursor-pointer shadow-sm border transition-all active:scale-95 flex flex-col justify-start
                                   ${c.record_type === 'hidden' 
                                     ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 opacity-60' 
-                                    : 'bg-accent-100 dark:bg-accent-900/30 border-accent-200 dark:border-accent-800/50 hover:border-accent-300 dark:hover:border-accent-700'
+                                    : 'bg-accent-soft border-accent-soft-border hover:brightness-95 dark:hover:brightness-110'
                                   }`}
                               >
-                                <div className="text-[10px] font-black text-accent-900 dark:text-accent-100 leading-tight truncate">
+                                <div className="text-[10px] font-black text-accent-soft-foreground leading-tight truncate">
                                   {c.course_code}
                                 </div>
                                 {!isVerySmall && courseName && classDetailMode === 'detailed' && (
-                                  <div className="text-[9px] font-medium text-slate-700 dark:text-slate-300 leading-tight truncate mb-0.5">
+                                  <div className="text-[9px] font-medium text-accent-soft-foreground opacity-90 leading-tight truncate mb-0.5">
                                     {courseName}
                                   </div>
                                 )}
                                 {!isVerySmall && (
                                   <>
-                                    <div className="text-[8px] font-semibold text-accent-700/80 dark:text-accent-300/80 truncate">
+                                    <div className="text-[8px] font-semibold text-accent-soft-foreground opacity-80 truncate">
                                       {formatRoutineTime(c.start_time, timeFormat)}-{formatRoutineTime(c.end_time, timeFormat)}
                                     </div>
                                     {showRoom && (
-                                      <div className="text-[9px] font-bold text-slate-700 dark:text-slate-300 truncate mt-0.5">
+                                      <div className="text-[9px] font-bold text-accent-soft-foreground truncate mt-0.5">
                                         {c.room}
                                       </div>
                                     )}
@@ -468,12 +468,12 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
                                 {!isVerySmall && !isMedium && (
                                   <>
                                     {showTeacher && c.teacher && (
-                                      <div className="text-[8px] font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                                      <div className="text-[8px] font-medium text-accent-soft-foreground opacity-80 truncate mt-0.5">
                                         {c.teacher}
                                       </div>
                                     )}
                                     {showGroup && c.group_code && (
-                                      <div className="text-[8px] font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                                      <div className="text-[8px] font-medium text-accent-soft-foreground opacity-80 truncate mt-0.5">
                                         Gr: {c.group_code}
                                       </div>
                                     )}

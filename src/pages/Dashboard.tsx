@@ -4,6 +4,7 @@ import { format, isAfter, isBefore, differenceInMinutes } from 'date-fns';
 import { usePreferences } from '../hooks/usePreferences';
 import { useLiveTime } from '../hooks/useLiveTime';
 import { useWeather } from '../hooks/useWeather';
+import { weatherService } from '../services/weatherService';
 import { useAppContext } from '../context/AppContext';
 import { api } from '../services/api';
 import { plannerApi } from '../services/plannerApi';
@@ -17,7 +18,7 @@ import {
   Clock, ArrowRight, Loader2, Calendar, BookOpen,
   FileText, ClipboardList, CheckSquare, Bell,
   AlertTriangle, ChevronRight, Cloud, CloudRain, CloudLightning, Sun, CloudFog, MapPin,
-  Search, X, Users
+  Search, X, Users, Trash2, ChevronDown
 } from 'lucide-react';
 
 // ── helpers ─────────────────────────────────────────────────────────────────
@@ -261,7 +262,7 @@ function WeatherWidget() {
                     <button
                       key={r.id}
                       onClick={() => handleSelect(r)}
-                      className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-accent-50 dark:hover:bg-accent-900/20 transition-colors focus:outline-none focus:bg-accent-50 dark:focus:bg-accent-900/20"
+                      className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-accent-soft transition-colors focus:outline-none focus:bg-accent-soft"
                     >
                       <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{r.name}</div>
                       {(r.admin1 || r.country) && (
@@ -361,9 +362,10 @@ function DailyProgressWidget({ classes, now }: { classes: any[], now: Date }) {
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { batch, section, timeFormat, showRoom, showTeacher, showGroup, classDetailMode } = usePreferences();
-  const { selectedVersion, loading: appLoading, getCourseName } = useAppContext();
+  const { batch, section, timeFormat, showRoom, showTeacher, showGroup, classDetailMode, weatherSuggestions, weatherLocation } = usePreferences();
+  const { selectedVersion, loading: appLoading, getCourseName, versions, setSelectedVersionId, refreshOptions } = useAppContext();
   const versionId = selectedVersion?.id;
+  const { data: weatherData } = useWeather(weatherLocation);
 
   // routine
   const [classes, setClasses] = useState<ClassRecord[]>([]);
@@ -381,6 +383,21 @@ export function Dashboard() {
 
   // live clock
   const now = useLiveTime(1000);
+
+  const [deleting, setDeleting] = useState(false);
+  const handleDeleteRoutine = async () => {
+    if (!selectedVersion) return;
+    if (!window.confirm(`Delete "${selectedVersion.name || 'this routine'}"?\n\nThis will permanently remove the routine and all its associated classes and personal overrides.`)) return;
+    setDeleting(true);
+    try {
+      await api.deleteRoutine(selectedVersion.id);
+      await refreshOptions();
+    } catch (err: any) {
+      alert(`Failed to delete routine: ${err.message}`);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const loadRoutine = useCallback(async () => {
     if (!batch || !section || !versionId) return;
@@ -416,7 +433,7 @@ export function Dashboard() {
   if (!batch || !section) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in zoom-in duration-300">
-        <div className="w-20 h-20 bg-accent-100 dark:bg-accent-900/30 text-accent-600 dark:text-accent-400 rounded-full flex items-center justify-center mb-6">
+        <div className="w-20 h-20 bg-accent-soft text-accent-600 dark:text-accent-400 rounded-full flex items-center justify-center mb-6">
           <Calendar className="w-10 h-10" />
         </div>
         <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-slate-100">Welcome to DIU Routine</h2>
@@ -424,7 +441,7 @@ export function Dashboard() {
           Set your batch and section to see your personalised dashboard.
         </p>
         <button onClick={() => navigate('/settings')}
-          className="bg-accent-600 hover:bg-accent-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-accent-500/30 transition-all flex items-center gap-2 hover:-translate-y-0.5">
+          className="bg-accent hover:bg-accent-600 text-accent-foreground px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-accent-500/30 transition-all flex items-center gap-2 hover:-translate-y-0.5">
           Setup My Routine <ArrowRight className="w-5 h-5" />
         </button>
       </div>
@@ -548,29 +565,98 @@ export function Dashboard() {
 
   // ── render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10 animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-5xl mx-auto pb-10">
 
-      {/* ── Header ── */}
-      <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5 flex items-center gap-2">
-            Batch {batch} <span className="text-slate-300 dark:text-slate-600 font-normal mx-1">•</span> Section {section}
-          </h1>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <span>{greeting(now)} 👋</span>
-            <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
-            <span>{format(now, 'EEEE, MMM d, yyyy')}</span>
-            <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
-            <span className="w-16">{format(now, timeFormat === '24h' ? 'HH:mm' : 'h:mm a').toLowerCase()}</span>
-            <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
-            <span className="text-accent-600 dark:text-accent-400 bg-accent-50 dark:bg-accent-900/20 px-1.5 py-0.5 rounded-md">
-              {selectedVersion?.name || `Version ${selectedVersion?.id}`}
-              {routineLoading && <span className="ml-1 inline-flex items-center"><Loader2 className="w-3 h-3 animate-spin ml-1" /></span>}
-            </span>
+      {/* ── Header Identity Card ── */}
+      <header className="relative mb-5 rounded-[24px] bg-slate-50/80 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/60 p-4 sm:p-5 overflow-hidden shadow-sm">
+        {/* Ambient Glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-accent-500/10 blur-3xl rounded-full pointer-events-none" />
+
+        {/* Top Row: App Title (Mobile Only) & Controls */}
+        <div className="flex items-start justify-between mb-4 relative z-10">
+          <div className="md:hidden font-black leading-none tracking-tight text-lg flex items-center gap-1.5">
+            <img src="/logo.svg" alt="Logo" className="w-5 h-5 rounded-md shadow-sm" />
+            <div>
+              <span className="text-slate-900 dark:text-white">DIU</span>
+              <span className="text-accent-600 dark:text-accent-400 ml-1">Routine</span>
+            </div>
           </div>
+          <div className="hidden md:block" />
+          
+          {versions.length > 0 && (
+            <div className="flex items-center gap-1">
+              <div className="relative group">
+                <select 
+                  value={versionId || ''}
+                  onChange={(e) => setSelectedVersionId(Number(e.target.value))}
+                  disabled={deleting}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full z-10"
+                >
+                  {versions.map(v => (
+                    <option key={v.id} value={v.id}>{v.name || v.semester || `v${v.id}`}</option>
+                  ))}
+                </select>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 transition-colors group-hover:border-accent-500/40">
+                  <span className="truncate max-w-[100px]">{selectedVersion?.name || selectedVersion?.semester || `v${selectedVersion?.id}`}</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </div>
+              </div>
+              <button 
+                onClick={handleDeleteRoutine}
+                disabled={deleting}
+                className="p-1 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                title="Delete routine"
+              >
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Quick actions removed from Dashboard as requested */}
+        {/* Identity Block */}
+        <div className="flex flex-col relative z-10">
+          {/* Batch & Section */}
+          <div className="flex items-center gap-4 mb-3">
+            <div className="flex flex-col">
+              <span className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white leading-none tracking-tighter">
+                {batch}
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                Batch
+              </span>
+            </div>
+            
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800" />
+            
+            <div className="flex flex-col">
+              <span className="text-4xl sm:text-5xl font-black text-accent-600 dark:text-accent-400 leading-none tracking-tighter">
+                {section}
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                Section
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            {/* Date & Greeting */}
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                {greeting(now)} 👋
+              </span>
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                {format(now, 'EEEE')} <span className="mx-0.5 text-slate-300 dark:text-slate-700">·</span> {format(now, 'MMM d')} <span className="mx-0.5 text-slate-300 dark:text-slate-700">·</span> {format(now, timeFormat === '24h' ? 'HH:mm' : 'h:mm a').toLowerCase()}
+              </span>
+            </div>
+
+            {/* Metadata Chip */}
+            <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 bg-slate-200/50 dark:bg-slate-800/50 rounded text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-500"></span>
+              {selectedVersion?.name || `v${selectedVersion?.id}`}
+              {routineLoading && <Loader2 className="w-2.5 h-2.5 animate-spin ml-1" />}
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* ── Main Layout ── */}
@@ -648,6 +734,29 @@ export function Dashboard() {
                   )}
                 </div>
               </div>
+
+              {weatherSuggestions && weatherData && (
+                (() => {
+                  const startMs = parseRoutineTime(focusClass.start_time, now).getTime();
+                  const endMs = parseRoutineTime(focusClass.end_time, now).getTime();
+                  const dur = Math.max(0, Math.floor((endMs - startMs) / 60000));
+                  const suggestion = weatherService.generateSmartSuggestion(weatherData, startMs, dur);
+                  if (suggestion) {
+                    return (
+                      <div className="mt-4 text-[11.5px] font-medium text-white/95 bg-black/20 rounded-lg p-3 flex items-start gap-2.5 relative z-10 leading-snug border border-white/10 shadow-sm backdrop-blur-md">
+                        <Cloud className="w-4 h-4 mt-0.5 text-blue-200 shrink-0 drop-shadow-md" />
+                        <div>
+                          {suggestion.split('\n').map((line, i) => (
+                            <div key={i} className={i === 0 ? "font-bold mb-0.5" : "text-white/80"}>{line}</div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()
+              )}
+
             </div>
           ) : (
             <div className="relative z-10 py-2">
@@ -681,14 +790,14 @@ export function Dashboard() {
                     
                     <div className={`pl-2 pr-2 py-2 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-4 ${
                       isPast ? 'opacity-[0.7] hover:opacity-100 hover:bg-slate-50 dark:hover:bg-slate-800/50' 
-                      : isCur ? 'bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-700/50 shadow-sm' 
+                      : isCur ? 'bg-accent-soft border border-accent-soft-border shadow-sm' 
                       : isNext ? 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm'
                       : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                     }`}>
                       <div className="flex-1 min-w-0">
                         <div className={`font-black text-sm tracking-tight flex items-center gap-2 ${isCur ? 'text-accent-700 dark:text-accent-300' : isPast ? 'text-slate-600 dark:text-slate-400' : 'text-slate-800 dark:text-slate-100'}`}>
                           {c.course_code}
-                          {isCur && <span className="text-[8px] px-1 py-0.5 bg-accent-600 text-white rounded uppercase tracking-wider leading-none shadow-sm">Now</span>}
+                          {isCur && <span className="text-[8px] px-1 py-0.5 bg-accent text-accent-foreground rounded uppercase tracking-wider leading-none shadow-sm">Now</span>}
                         </div>
                         {getCourseName(c.course_code) && classDetailMode === 'detailed' && (
                           <div className={`text-[10px] font-medium mt-0.5 truncate ${isCur ? 'text-accent-600/80 dark:text-accent-300/80' : isPast ? 'text-slate-500' : 'text-slate-600 dark:text-slate-400'}`}>

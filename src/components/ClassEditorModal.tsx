@@ -160,7 +160,7 @@ export function ClassEditorModal({ mode, initialData, onClose, onSaved }: ClassE
             <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={loading} className="flex items-center gap-2 px-5 py-2 font-semibold text-white bg-accent-600 hover:bg-accent-700 rounded-lg shadow-lg shadow-accent-500/30 transition-all disabled:opacity-50">
+            <button type="submit" disabled={loading} className="flex items-center gap-2 px-5 py-2 font-semibold text-accent-foreground bg-accent hover:bg-accent-600 rounded-lg shadow-lg shadow-accent-500/30 transition-all disabled:opacity-50">
               <Save className="w-4 h-4" />
               Save Changes
             </button>

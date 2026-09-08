@@ -41,7 +41,7 @@ export function PlannerLayout() {
   ];
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300 pb-10">
+    <div className="space-y-6 max-w-5xl mx-auto pb-10">
       
       {/* Header Area */}
       <div className="page-header border-b border-slate-200 dark:border-slate-800 pb-6">
@@ -85,7 +85,7 @@ export function PlannerLayout() {
           <div className="relative">
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-600 text-accent-foreground rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95"
             >
               <Plus className="w-4 h-4" /> Add <ChevronDown className="w-4 h-4 opacity-70" />
             </button>

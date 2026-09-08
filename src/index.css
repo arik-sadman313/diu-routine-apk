@@ -22,6 +22,33 @@
     
     /* Spacing Modifiers */
     --spacing-scale: 1;
+
+    /* Semantic Colors for UI */
+    --color-accent: var(--color-accent-500);
+    --color-accent-foreground: #ffffff;
+    
+    /* Soft accent for backgrounds with contrast-aware foregrounds */
+    --color-accent-soft: var(--color-accent-100);
+    --color-accent-soft-foreground: var(--color-accent-900);
+    --color-accent-soft-border: var(--color-accent-200);
+    
+    /* Backgrounds and text */
+    --color-card-background: #ffffff;
+    --color-card-foreground: #0f172a; /* slate-900 */
+    --color-muted-foreground: #64748b; /* slate-500 */
+    --color-border: #e2e8f0; /* slate-200 */
+  }
+
+  .dark {
+    /* In dark mode, soft accent is dark, foreground is light */
+    --color-accent-soft: var(--color-accent-950);
+    --color-accent-soft-foreground: var(--color-accent-100);
+    --color-accent-soft-border: var(--color-accent-800);
+    
+    --color-card-background: #1e293b; /* slate-800 */
+    --color-card-foreground: #f8fafc; /* slate-50 */
+    --color-muted-foreground: #94a3b8; /* slate-400 */
+    --color-border: #334155; /* slate-700 */
   }
 
   /* Accent Color Overrides */
@@ -37,6 +64,7 @@
     --color-accent-800: #1e40af;
     --color-accent-900: #1e3a8a;
     --color-accent-950: #172554;
+    --color-accent-foreground: #ffffff;
   }
   :root[data-accent="green"] {
     --color-accent-50: #f0fdf4;
@@ -50,6 +78,7 @@
     --color-accent-800: #166534;
     --color-accent-900: #14532d;
     --color-accent-950: #052e16;
+    --color-accent-foreground: #020617; /* slate-950 */
   }
   :root[data-accent="orange"] {
     --color-accent-50: #fff7ed;
@@ -63,6 +92,7 @@
     --color-accent-800: #9a3412;
     --color-accent-900: #7c2d12;
     --color-accent-950: #431407;
+    --color-accent-foreground: #020617; /* slate-950 */
   }
   :root[data-accent="red"] {
     --color-accent-50: #fef2f2;
@@ -76,6 +106,7 @@
     --color-accent-800: #991b1b;
     --color-accent-900: #7f1d1d;
     --color-accent-950: #450a0a;
+    --color-accent-foreground: #020617; /* slate-950 */
   }
   :root[data-accent="pink"] {
     --color-accent-50: #fdf2f8;
@@ -89,6 +120,7 @@
     --color-accent-800: #9d174d;
     --color-accent-900: #831843;
     --color-accent-950: #500724;
+    --color-accent-foreground: #020617; /* slate-950 */
   }
 
   /* Font Scaling */
@@ -184,5 +216,41 @@
   /* Pill badge for class record types */
   .record-badge {
     @apply text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation-name: enter;
+    animation-duration: var(--tw-animate-duration, 300ms);
+    --tw-enter-opacity: initial;
+    --tw-enter-scale: initial;
+    --tw-enter-rotate: initial;
+    --tw-enter-translate-x: initial;
+    --tw-enter-translate-y: initial;
+  }
+  
+  .fade-in { --tw-enter-opacity: 0; }
+  
+  .slide-in-from-bottom-2 { --tw-enter-translate-y: 0.5rem; }
+  .slide-in-from-bottom-4 { --tw-enter-translate-y: 1rem; }
+  .slide-in-from-bottom-8 { --tw-enter-translate-y: 2rem; }
+  
+  .slide-in-from-top-2 { --tw-enter-translate-y: -0.5rem; }
+  .slide-in-from-right-2 { --tw-enter-translate-x: 0.5rem; }
+  
+  .zoom-in-95 { --tw-enter-scale: 0.95; }
+  .zoom-in { --tw-enter-scale: 0; }
+  
+  .duration-150 { --tw-animate-duration: 150ms; }
+  .duration-200 { --tw-animate-duration: 200ms; }
+  .duration-300 { --tw-animate-duration: 300ms; }
+  .duration-500 { --tw-animate-duration: 500ms; }
+
+  @keyframes enter {
+    0% {
+      opacity: var(--tw-enter-opacity, 1);
+      transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0));
+    }
   }
 }

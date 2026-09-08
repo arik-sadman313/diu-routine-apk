@@ -95,7 +95,7 @@ export function Explore() {
   const uniqueGroups = Array.from(new Set(classes.map(c => c.group_code))).filter(Boolean).sort();
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300 pb-10">
+    <div className="space-y-6 max-w-5xl mx-auto pb-10">
       {/* Header */}
       <div className="page-header">
         <div className="page-header-content">

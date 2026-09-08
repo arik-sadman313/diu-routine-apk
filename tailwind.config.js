@@ -20,7 +20,20 @@ export default {
           800: 'var(--color-accent-800)',
           900: 'var(--color-accent-900)',
           950: 'var(--color-accent-950)',
-        }
+          DEFAULT: 'var(--color-accent-500)',
+          foreground: 'var(--color-accent-foreground)',
+          soft: 'var(--color-accent-soft)',
+          'soft-foreground': 'var(--color-accent-soft-foreground)',
+          'soft-border': 'var(--color-accent-soft-border)',
+        },
+        card: {
+          DEFAULT: 'var(--color-card-background)',
+          foreground: 'var(--color-card-foreground)',
+        },
+        muted: {
+          foreground: 'var(--color-muted-foreground)',
+        },
+        border: 'var(--color-border)',
       },
       spacing: {
         '0.5': 'calc(0.125rem * var(--spacing-scale))',

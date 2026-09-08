@@ -199,7 +199,7 @@ export function PlannerUnified({ initialFilter = 'all', onEdit, refreshTrigger =
     groupedItems.completed.length > 0;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300 pb-10">
+    <div className="space-y-6 pb-10">
       
       {/* Filters Bar */}
       <div className="space-y-4 sticky top-[60px] md:top-0 z-20 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md pt-2 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -213,7 +213,7 @@ export function PlannerUnified({ initialFilter = 'all', onEdit, refreshTrigger =
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-accent-600 text-white shadow-md shadow-accent-500/20'
+                    ? 'bg-accent text-accent-foreground shadow-md shadow-accent-500/20'
                     : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >

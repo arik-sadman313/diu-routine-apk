@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { usePreferences } from '../hooks/usePreferences';
 import { useTheme } from '../hooks/useTheme';
 import { useAppContext } from '../context/AppContext';
-import { Settings as SettingsIcon, Moon, Sun, Monitor, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus, ChevronDown, GraduationCap, Users, Info, Bug, Palette, LayoutGrid, Clock, Eye, EyeOff } from 'lucide-react';
+import { Settings as SettingsIcon, Trash2, MapPin, Navigation, Loader2, CheckCircle2, BookOpen, Edit2, Plus, ChevronDown, GraduationCap, Users, Info, Bug, Palette, LayoutGrid, Clock, Eye, EyeOff, Bell, CloudRain } from 'lucide-react';
 import { AboutModal } from '../components/settings/AboutModal';
 import { BugReportModal } from '../components/settings/BugReportModal';
 import { api } from '../services/api';
@@ -144,6 +144,11 @@ export function Settings() {
     showTeacher, setShowTeacher,
     showGroup, setShowGroup,
     classDetailMode, setClassDetailMode,
+    masterNotifications, setMasterNotifications,
+    classNotifications, setClassNotifications,
+    notifyBeforeClass, setNotifyBeforeClass,
+    plannerNotifications, setPlannerNotifications,
+    weatherSuggestions, setWeatherSuggestions,
     clearPreferences 
   } = usePreferences();
   const { theme, setTheme } = useTheme();
@@ -167,6 +172,13 @@ export function Settings() {
 
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [showSectionModal, setShowSectionModal] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [showAccentModal, setShowAccentModal] = useState(false);
+  const [showFontModal, setShowFontModal] = useState(false);
+  const [showDensityModal, setShowDensityModal] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [showClassDetailModal, setShowClassDetailModal] = useState(false);
+  const [showNotifyOffsetModal, setShowNotifyOffsetModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showBugReportModal, setShowBugReportModal] = useState(false);
 
@@ -342,7 +354,7 @@ export function Settings() {
             {updateStatus === 'update-available' ? (
               <div className="flex gap-2 w-full sm:w-auto">
                 <button onClick={() => setUpdateStatus('idle')} className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none">Later</button>
-                <button onClick={handlePerformUpdate} disabled={updating} className="px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none flex items-center justify-center gap-2">
+                <button onClick={handlePerformUpdate} disabled={updating} className="px-4 py-2 bg-accent hover:bg-accent-600 text-accent-foreground text-sm font-bold rounded-lg transition-colors flex-1 sm:flex-none flex items-center justify-center gap-2">
                   {updating && <Loader2 className="w-4 h-4 animate-spin"/>}
                   Update Routine
                 </button>
@@ -417,107 +429,55 @@ export function Settings() {
           
           <div className="space-y-6">
             {/* Theme */}
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Theme</label>
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  onClick={() => setTheme('light')}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                    theme === 'light' 
-                      ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm' 
-                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-accent-200 dark:hover:border-accent-800 hover:bg-accent-50/50 dark:hover:bg-accent-900/10'
-                  }`}
-                >
-                  <Sun className={`w-5 h-5 ${theme === 'light' ? 'fill-accent-200 dark:fill-accent-800' : ''}`} />
-                  <span className="font-bold text-xs">Light</span>
-                </button>
-                <button
-                  onClick={() => setTheme('dark')}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                    theme === 'dark' 
-                      ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm' 
-                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-accent-200 dark:hover:border-accent-800 hover:bg-accent-50/50 dark:hover:bg-accent-900/10'
-                  }`}
-                >
-                  <Moon className={`w-5 h-5 ${theme === 'dark' ? 'fill-accent-200 dark:fill-accent-800' : ''}`} />
-                  <span className="font-bold text-xs">Dark</span>
-                </button>
-                <button
-                  onClick={() => setTheme('system')}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                    theme === 'system' 
-                      ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 shadow-sm' 
-                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-accent-200 dark:hover:border-accent-800 hover:bg-accent-50/50 dark:hover:bg-accent-900/10'
-                  }`}
-                >
-                  <Monitor className="w-5 h-5" />
-                  <span className="font-bold text-xs">System</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowThemeModal(true)}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm transition-shadow flex items-center justify-between text-left"
+              >
+                <span className="capitalize">{theme === 'system' ? 'System Default' : theme}</span>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </button>
             </div>
 
             {/* Accent Color */}
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Accent Color</label>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { id: 'purple', class: 'bg-[#a855f7]' },
-                  { id: 'blue', class: 'bg-[#3b82f6]' },
-                  { id: 'green', class: 'bg-[#22c55e]' },
-                  { id: 'orange', class: 'bg-[#f97316]' },
-                  { id: 'red', class: 'bg-[#ef4444]' },
-                  { id: 'pink', class: 'bg-[#ec4899]' }
-                ].map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => setAccentColor(color.id as any)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 focus:ring-accent-500 ${color.class}`}
-                  >
-                    {accentColor === color.id && <CheckCircle2 className="w-5 h-5 text-white" />}
-                  </button>
-                ))}
-              </div>
+              <button
+                onClick={() => setShowAccentModal(true)}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm transition-shadow flex items-center justify-between text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: accentColor === 'purple' ? '#a855f7' : accentColor === 'blue' ? '#3b82f6' : accentColor === 'green' ? '#22c55e' : accentColor === 'orange' ? '#f97316' : accentColor === 'red' ? '#ef4444' : '#ec4899' }} />
+                  <span className="capitalize">{accentColor}</span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Font Size */}
-              <div className="space-y-3">
+              <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Font Size</label>
-                <div className="flex flex-col gap-2">
-                  {(['small', 'default', 'large', 'extra-large'] as const).map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setFontSize(size)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium border text-left transition-colors ${
-                        fontSize === size 
-                          ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300' 
-                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      {size.charAt(0).toUpperCase() + size.slice(1).replace('-', ' ')}
-                    </button>
-                  ))}
-                </div>
+                <button
+                  onClick={() => setShowFontModal(true)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm transition-shadow flex items-center justify-between text-left"
+                >
+                  <span className="capitalize">{fontSize.replace('-', ' ')}</span>
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                </button>
               </div>
 
               {/* UI Density */}
-              <div className="space-y-3">
+              <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">UI Density</label>
-                <div className="flex flex-col gap-2">
-                  {(['compact', 'comfortable', 'spacious'] as const).map((density) => (
-                    <button
-                      key={density}
-                      onClick={() => setUiDensity(density)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium border text-left transition-colors ${
-                        uiDensity === density 
-                          ? 'border-accent-500 bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300' 
-                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      {density.charAt(0).toUpperCase() + density.slice(1)}
-                    </button>
-                  ))}
-                </div>
+                <button
+                  onClick={() => setShowDensityModal(true)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm transition-shadow flex items-center justify-between text-left"
+                >
+                  <span className="capitalize">{uiDensity}</span>
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                </button>
               </div>
             </div>
 
@@ -536,6 +496,91 @@ export function Settings() {
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   reduceAnimations ? 'translate-x-6' : 'translate-x-1'
                 }`} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Notifications & Smart Features */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <Bell className="w-5 h-5 text-accent-500" />
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Notifications & Smart Features</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Manage alerts and intelligent suggestions</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+              <div>
+                <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Enable All Notifications</div>
+                <div className="text-xs text-slate-500">Master switch for all app alerts</div>
+              </div>
+              <button
+                onClick={() => setMasterNotifications(!masterNotifications)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${masterNotifications ? 'bg-accent-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${masterNotifications ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
+            </div>
+
+            {masterNotifications && (
+              <div className="space-y-4 pl-4 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Class Reminders</div>
+                    <div className="text-xs text-slate-500">Alerts before your scheduled classes</div>
+                  </div>
+                  <button
+                    onClick={() => setClassNotifications(!classNotifications)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${classNotifications ? 'bg-accent-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${classNotifications ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+
+                {classNotifications && (
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Notify me</span>
+                    <button
+                      onClick={() => setShowNotifyOffsetModal(true)}
+                      className="bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-3 py-1.5 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm flex items-center justify-between text-left"
+                    >
+                      <span>{notifyBeforeClass} minutes before</span>
+                      <ChevronDown className="w-4 h-4 text-slate-400 ml-2" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2">
+                  <div>
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Planner Alerts</div>
+                    <div className="text-xs text-slate-500">Notifications for exams and tasks</div>
+                  </div>
+                  <button
+                    onClick={() => setPlannerNotifications(!plannerNotifications)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${plannerNotifications ? 'bg-accent-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${plannerNotifications ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+              <div className="flex items-center gap-3">
+                <CloudRain className="w-5 h-5 text-slate-400 mt-0.5" />
+                <div>
+                  <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Smart Weather Suggestions</div>
+                  <div className="text-xs text-slate-500">Recommend bringing an umbrella if rain is expected</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setWeatherSuggestions(!weatherSuggestions)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${weatherSuggestions ? 'bg-accent-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${weatherSuggestions ? 'translate-x-6' : 'translate-x-1'}`} />
               </button>
             </div>
           </div>
@@ -561,24 +606,13 @@ export function Settings() {
                   <div className="text-xs text-slate-500">Display 12-hour or 24-hour time</div>
                 </div>
               </div>
-              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setTimeFormat('12h')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
-                    timeFormat === '12h' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  12h
-                </button>
-                <button
-                  onClick={() => setTimeFormat('24h')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
-                    timeFormat === '24h' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  24h
-                </button>
-              </div>
+              <button
+                onClick={() => setShowTimeModal(true)}
+                className="w-full sm:w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm flex items-center justify-between text-left"
+              >
+                <span>{timeFormat}</span>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </button>
             </div>
 
             {/* Visibility Toggles */}
@@ -586,30 +620,30 @@ export function Settings() {
               <button
                 onClick={() => setShowRoom(!showRoom)}
                 className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
-                  showRoom ? 'border-accent-200 dark:border-accent-800 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                  showRoom ? 'border-accent-soft-border bg-accent-soft text-accent-soft-foreground' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300'
                 }`}
               >
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Show Room</span>
+                <span className="text-sm font-bold">Show Room</span>
                 {showRoom ? <Eye className="w-4 h-4 text-accent-500" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
               </button>
               
               <button
                 onClick={() => setShowTeacher(!showTeacher)}
                 className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
-                  showTeacher ? 'border-accent-200 dark:border-accent-800 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                  showTeacher ? 'border-accent-soft-border bg-accent-soft text-accent-soft-foreground' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300'
                 }`}
               >
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Show Teacher</span>
+                <span className="text-sm font-bold">Show Teacher</span>
                 {showTeacher ? <Eye className="w-4 h-4 text-accent-500" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
               </button>
 
               <button
                 onClick={() => setShowGroup(!showGroup)}
                 className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
-                  showGroup ? 'border-accent-200 dark:border-accent-800 bg-accent-50/50 dark:bg-accent-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                  showGroup ? 'border-accent-soft-border bg-accent-soft text-accent-soft-foreground' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300'
                 }`}
               >
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Show Group</span>
+                <span className="text-sm font-bold">Show Group</span>
                 {showGroup ? <Eye className="w-4 h-4 text-accent-500" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
               </button>
             </div>
@@ -620,24 +654,13 @@ export function Settings() {
                 <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Class Detail</div>
                 <div className="text-xs text-slate-500">Show full course names in cards</div>
               </div>
-              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setClassDetailMode('compact')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
-                    classDetailMode === 'compact' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  Compact
-                </button>
-                <button
-                  onClick={() => setClassDetailMode('detailed')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
-                    classDetailMode === 'detailed' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-                >
-                  Detailed
-                </button>
-              </div>
+              <button
+                onClick={() => setShowClassDetailModal(true)}
+                className="w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/50 text-sm flex items-center justify-between text-left"
+              >
+                <span className="capitalize">{classDetailMode}</span>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </button>
             </div>
           </div>
         </div>
@@ -679,7 +702,7 @@ export function Settings() {
               <button
                 onClick={handleAddCourse}
                 disabled={savingCourse}
-                className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-accent hover:bg-accent-600 text-accent-foreground text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
               >
                 {savingCourse ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingCourse ? <CheckCircle2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
                 {editingCourse ? 'Save' : 'Add Course'}
@@ -831,6 +854,98 @@ export function Settings() {
         currentValue={section}
         searchPlaceholder="Search section..."
         emptyText="No sections found"
+      />
+
+      
+      <SelectionModal
+        isOpen={showThemeModal}
+        onClose={() => setShowThemeModal(false)}
+        onConfirm={(val) => { setTheme(val.toLowerCase() as any); }}
+        title="Select Theme"
+        subtitle="Choose app theme"
+        icon={Palette}
+        options={['Light', 'Dark', 'System']}
+        currentValue={theme.charAt(0).toUpperCase() + theme.slice(1)}
+        searchPlaceholder="Search theme..."
+        emptyText="No themes found"
+      />
+
+      <SelectionModal
+        isOpen={showAccentModal}
+        onClose={() => setShowAccentModal(false)}
+        onConfirm={(val) => { setAccentColor(val.toLowerCase() as any); }}
+        title="Select Accent Color"
+        subtitle="Choose your favorite color"
+        icon={Palette}
+        options={['Purple', 'Blue', 'Green', 'Orange', 'Red', 'Pink']}
+        currentValue={accentColor.charAt(0).toUpperCase() + accentColor.slice(1)}
+        searchPlaceholder="Search color..."
+        emptyText="No colors found"
+      />
+
+      <SelectionModal
+        isOpen={showFontModal}
+        onClose={() => setShowFontModal(false)}
+        onConfirm={(val) => { setFontSize(val.toLowerCase().replace(' ', '-') as any); }}
+        title="Select Font Size"
+        subtitle="Adjust text size"
+        icon={SettingsIcon}
+        options={['Small', 'Default', 'Large', 'Extra Large']}
+        currentValue={fontSize.charAt(0).toUpperCase() + fontSize.slice(1).replace('-', ' ')}
+        searchPlaceholder="Search size..."
+        emptyText="No sizes found"
+      />
+
+      <SelectionModal
+        isOpen={showDensityModal}
+        onClose={() => setShowDensityModal(false)}
+        onConfirm={(val) => { setUiDensity(val.toLowerCase() as any); }}
+        title="Select UI Density"
+        subtitle="Adjust padding and spacing"
+        icon={LayoutGrid}
+        options={['Compact', 'Comfortable', 'Spacious']}
+        currentValue={uiDensity.charAt(0).toUpperCase() + uiDensity.slice(1)}
+        searchPlaceholder="Search density..."
+        emptyText="No density found"
+      />
+
+      <SelectionModal
+        isOpen={showTimeModal}
+        onClose={() => setShowTimeModal(false)}
+        onConfirm={(val) => { setTimeFormat(val as any); }}
+        title="Select Time Format"
+        subtitle="12-hour or 24-hour clock"
+        icon={Clock}
+        options={['12h', '24h']}
+        currentValue={timeFormat}
+        searchPlaceholder="Search format..."
+        emptyText="No format found"
+      />
+
+      <SelectionModal
+        isOpen={showClassDetailModal}
+        onClose={() => setShowClassDetailModal(false)}
+        onConfirm={(val) => { setClassDetailMode(val.toLowerCase() as any); }}
+        title="Class Detail Mode"
+        subtitle="Choose timetable density"
+        icon={SettingsIcon}
+        options={['Compact', 'Detailed']}
+        currentValue={classDetailMode.charAt(0).toUpperCase() + classDetailMode.slice(1)}
+        searchPlaceholder="Search mode..."
+        emptyText="No mode found"
+      />
+
+      <SelectionModal
+        isOpen={showNotifyOffsetModal}
+        onClose={() => setShowNotifyOffsetModal(false)}
+        onConfirm={(val) => { setNotifyBeforeClass(parseInt(val)); }}
+        title="Notification Offset"
+        subtitle="Minutes before class to notify"
+        icon={Bell}
+        options={['10 minutes', '15 minutes', '30 minutes', '45 minutes', '60 minutes']}
+        currentValue={`${notifyBeforeClass} minutes`}
+        searchPlaceholder="Search offset..."
+        emptyText="No offset found"
       />
 
       {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}

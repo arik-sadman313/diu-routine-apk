@@ -33,3 +33,12 @@ android/local.properties
 routines.db
 *.db
 *.db-journal
+
+.android_home/
+*.apk
+lint_output.txt
+assets/
+fix_settings.js
+fix_settings.py
+generate_assets.sh
+routine_10056522.svg

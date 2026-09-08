@@ -89,7 +89,7 @@ export function CalendarView({ events, onDayClick, year, month, selectedDate, on
             >
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ml-auto transition-colors
                 ${isToday && !isSelected ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900' 
-                : isSelected ? 'bg-accent-600 text-white shadow-md shadow-accent-500/30'
+                : isSelected ? 'bg-accent text-accent-foreground shadow-md shadow-accent-500/30'
                 : 'text-slate-700 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'}
               `}>
                 {day}

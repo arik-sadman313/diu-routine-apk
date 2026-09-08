@@ -260,7 +260,7 @@ export function PlannerItemModal({ mode, itemType, initialData, onClose, onSaved
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex items-center gap-2 px-5 py-2 font-semibold text-white bg-accent-600 hover:bg-accent-700 rounded-lg shadow-lg shadow-accent-500/30 transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-5 py-2 font-semibold text-accent-foreground bg-accent hover:bg-accent-600 rounded-lg shadow-lg shadow-accent-500/30 transition-all disabled:opacity-50">
               <Save className="w-4 h-4" />
               {loading ? 'Saving…' : 'Save'}
             </button>

@@ -54,7 +54,7 @@ export function PlannerCalendar({ onEdit, refreshTrigger = 0 }: { onEdit?: (item
   };
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-300">
+    <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Calendar</h2>
       </div>

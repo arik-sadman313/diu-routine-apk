@@ -112,7 +112,7 @@ export function BugReportModal({ onClose }: BugReportModalProps) {
             <button 
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1 py-3 px-4 bg-accent-600 hover:bg-accent-700 text-white font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-300 dark:disabled:bg-slate-700 flex items-center justify-center gap-2 shadow-md shadow-accent-500/20"
+              className="flex-1 py-3 px-4 bg-accent hover:bg-accent-600 text-accent-foreground font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-300 dark:disabled:bg-slate-700 flex items-center justify-center gap-2 shadow-md shadow-accent-500/20"
             >
               {submitting ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Preparing...</>

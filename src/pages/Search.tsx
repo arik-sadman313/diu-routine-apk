@@ -167,7 +167,7 @@ export function Search() {
     <div 
       ref={containerRef}
       tabIndex={-1}
-      className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300 pb-10 focus:outline-none"
+      className="space-y-6 max-w-5xl mx-auto pb-10 focus:outline-none"
     >
       {/* Header */}
       <div className="page-header">
@@ -227,7 +227,7 @@ export function Search() {
                 onClick={() => setActiveFilter(tab.id as any)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap ${
                   activeFilter === tab.id
-                    ? 'bg-accent-600 text-white shadow-md shadow-accent-500/20'
+                    ? 'bg-accent text-accent-foreground shadow-md shadow-accent-500/20'
                     : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >

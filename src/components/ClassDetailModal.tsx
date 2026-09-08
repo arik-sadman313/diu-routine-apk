@@ -100,7 +100,7 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 flex-shrink-0 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 flex-shrink-0 bg-accent-soft rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-accent-600 dark:text-accent-400" />
             </div>
             <div className="min-w-0">
@@ -220,7 +220,7 @@ export function ClassDetailModal({ classRecord, onClose, onRefresh }: ClassDetai
                   navigate(`/explore?batch=${classRecord.batch}&section=${classRecord.section}`);
                 }}
                 disabled={loading}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-white bg-accent-600 hover:bg-accent-700 rounded-xl shadow-sm shadow-accent-500/20 transition-all disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-accent-foreground bg-accent hover:bg-accent-600 rounded-xl shadow-sm shadow-accent-500/20 transition-all disabled:opacity-50"
               >
                 <Compass className="w-3.5 h-3.5" /> View in Explore
               </button>

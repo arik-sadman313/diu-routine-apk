@@ -114,11 +114,11 @@ export function SelectionModal({
                     onClick={() => setTempValue(opt)}
                     className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${
                       isSelected 
-                        ? 'bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-800' 
+                        ? 'bg-accent-soft border border-accent-soft-border' 
                         : 'bg-transparent border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'
                     }`}
                   >
-                    <span className={`text-sm ${isSelected ? 'text-accent-700 dark:text-accent-300 font-bold' : 'text-slate-700 dark:text-slate-300 font-medium'}`}>
+                    <span className={`text-sm ${isSelected ? 'text-accent-soft-foreground font-bold' : 'text-slate-700 dark:text-slate-300 font-medium'}`}>
                       {opt}
                     </span>
                     <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center transition-colors ${
@@ -154,7 +154,7 @@ export function SelectionModal({
               }
             }}
             disabled={!tempValue}
-            className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 disabled:opacity-50 disabled:hover:bg-accent-600 rounded-xl shadow-sm transition-colors"
+            className="flex-1 px-4 py-2.5 text-sm font-bold text-accent-foreground bg-accent hover:bg-accent-600 disabled:opacity-50 disabled:hover:bg-accent rounded-xl shadow-sm transition-colors"
           >
             Confirm
           </button>

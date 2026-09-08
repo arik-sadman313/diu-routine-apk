@@ -66,7 +66,7 @@ export function ClassCard({ classRecord, onClick }: ClassCardProps) {
           {showRoom && (
             <span 
               title={classRecord.room}
-              className="bg-accent-100 text-accent-700 dark:bg-accent-900/50 dark:text-accent-300 px-1.5 py-0.5 rounded text-[10px] font-bold truncate max-w-full"
+              className="bg-accent-soft text-accent-soft-foreground px-1.5 py-0.5 rounded text-[10px] font-bold truncate max-w-full"
             >
               {classRecord.room}
             </span>

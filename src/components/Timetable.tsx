@@ -55,8 +55,11 @@ export function Timetable({ classes, showHidden = false, onRefresh = () => {}, v
   DAYS.forEach(day => classesByDay[day] = []);
   
   visibleClasses.forEach(c => {
-    if (classesByDay[c.day]) {
-      classesByDay[c.day].push(c);
+    const rawDay = c.day || '';
+    const normalizedDay = rawDay.trim().toLowerCase();
+    const matchedDay = DAYS.find(d => d.toLowerCase() === normalizedDay);
+    if (matchedDay && classesByDay[matchedDay]) {
+      classesByDay[matchedDay].push(c);
     }
   });
 

@@ -78,24 +78,25 @@ CREATE TABLE IF NOT EXISTS custom_courses (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE VIEW IF NOT EXISTS effective_classes AS
+DROP VIEW IF EXISTS effective_classes;
+CREATE VIEW effective_classes AS
 -- 1. Original classes that HAVE NO OVERRIDES
 SELECT 
     c.id as id,
     c.routine_version_id,
     'original' as record_type,
     c.page,
-    c.day,
-    c.start_time,
-    c.end_time,
-    c.room,
-    c.course_code,
-    c.group_code,
-    c.batch,
-    c.section,
-    c.subgroup,
-    c.special_group,
-    c.teacher
+    TRIM(c.day) as day,
+    TRIM(c.start_time) as start_time,
+    TRIM(c.end_time) as end_time,
+    TRIM(c.room) as room,
+    TRIM(c.course_code) as course_code,
+    TRIM(c.group_code) as group_code,
+    TRIM(c.batch) as batch,
+    TRIM(c.section) as section,
+    TRIM(c.subgroup) as subgroup,
+    TRIM(c.special_group) as special_group,
+    TRIM(c.teacher) as teacher
 FROM classes c
 WHERE NOT EXISTS (
     SELECT 1 FROM personal_overrides o WHERE o.target_class_id = c.id
@@ -109,17 +110,17 @@ SELECT
     c.routine_version_id,
     o.override_type as record_type,
     c.page,
-    COALESCE(o.day, c.day) as day,
-    COALESCE(o.start_time, c.start_time) as start_time,
-    COALESCE(o.end_time, c.end_time) as end_time,
-    COALESCE(o.room, c.room) as room,
-    COALESCE(o.course_code, c.course_code) as course_code,
-    COALESCE(o.group_code, c.group_code) as group_code,
-    COALESCE(o.batch, c.batch) as batch,
-    COALESCE(o.section, c.section) as section,
-    COALESCE(o.subgroup, c.subgroup) as subgroup,
-    COALESCE(o.special_group, c.special_group) as special_group,
-    COALESCE(o.teacher, c.teacher) as teacher
+    TRIM(COALESCE(o.day, c.day)) as day,
+    TRIM(COALESCE(o.start_time, c.start_time)) as start_time,
+    TRIM(COALESCE(o.end_time, c.end_time)) as end_time,
+    TRIM(COALESCE(o.room, c.room)) as room,
+    TRIM(COALESCE(o.course_code, c.course_code)) as course_code,
+    TRIM(COALESCE(o.group_code, c.group_code)) as group_code,
+    TRIM(COALESCE(o.batch, c.batch)) as batch,
+    TRIM(COALESCE(o.section, c.section)) as section,
+    TRIM(COALESCE(o.subgroup, c.subgroup)) as subgroup,
+    TRIM(COALESCE(o.special_group, c.special_group)) as special_group,
+    TRIM(COALESCE(o.teacher, c.teacher)) as teacher
 FROM classes c
 INNER JOIN personal_overrides o ON c.id = o.target_class_id
 
@@ -131,17 +132,17 @@ SELECT
     o.routine_version_id,
     o.override_type as record_type,
     0 as page,
-    o.day,
-    o.start_time,
-    o.end_time,
-    o.room,
-    o.course_code,
-    o.group_code,
-    o.batch,
-    o.section,
-    o.subgroup,
-    o.special_group,
-    o.teacher
+    TRIM(o.day) as day,
+    TRIM(o.start_time) as start_time,
+    TRIM(o.end_time) as end_time,
+    TRIM(o.room) as room,
+    TRIM(o.course_code) as course_code,
+    TRIM(o.group_code) as group_code,
+    TRIM(o.batch) as batch,
+    TRIM(o.section) as section,
+    TRIM(o.subgroup) as subgroup,
+    TRIM(o.special_group) as special_group,
+    TRIM(o.teacher) as teacher
 FROM personal_overrides o
 WHERE o.override_type = 'manually_added';
 

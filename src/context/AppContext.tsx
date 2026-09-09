@@ -82,13 +82,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Validate current default batch/section
         if (batch) {
-          const batchExists = opts.batches.includes(batch);
+          const batchExists = opts.batches.some(b => String(b) === String(batch));
           if (batchExists && section) {
-            const validSection = opts.batch_sections.some(bs => bs.batch === batch && bs.section === section);
+            const validSection = opts.batch_sections.some(bs => String(bs.batch) === String(batch) && String(bs.section) === String(section));
             if (!validSection) {
               // Section invalid for this batch, reset it
-              const firstValidSection = opts.batch_sections.find(bs => bs.batch === batch)?.section || '';
-              setSection(firstValidSection);
+              const firstValidSection = opts.batch_sections.find(bs => String(bs.batch) === String(batch))?.section || '';
+              setSection(String(firstValidSection));
             }
           } else if (!batchExists) {
             // Batch is completely invalid for this version, reset both

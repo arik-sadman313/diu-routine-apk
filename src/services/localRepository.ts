@@ -88,7 +88,7 @@ class LocalRepository {
 
     const getValues = async (column: string) => {
       const res = await db.query(`SELECT DISTINCT ${column} FROM effective_classes WHERE routine_version_id=? AND record_type != 'hidden' AND ${column} IS NOT NULL AND ${column} != '' ORDER BY ${column}`, [version]);
-      return (res.values || []).map((r: any) => r[column]);
+      return (res.values || []).map((r: any) => String(r[column]));
     };
 
     const pairsRes = await db.query(`SELECT DISTINCT batch, section FROM effective_classes WHERE routine_version_id=? AND record_type != 'hidden' AND batch IS NOT NULL AND section IS NOT NULL ORDER BY CAST(batch AS INTEGER), section`, [version]);
@@ -101,7 +101,7 @@ class LocalRepository {
       teachers: await getValues('teacher'),
       rooms: await getValues('room'),
       groups: await getValues('group_code'),
-      batch_sections: (pairsRes.values || []).map((r: any) => ({ batch: r.batch, section: r.section }))
+      batch_sections: (pairsRes.values || []).map((r: any) => ({ batch: String(r.batch), section: String(r.section) }))
     };
   }
 
@@ -119,8 +119,8 @@ class LocalRepository {
              group_code, batch, section, subgroup, special_group, teacher
       FROM effective_classes 
       WHERE routine_version_id=? 
-        AND UPPER(batch)=UPPER(?) 
-        AND UPPER(section)=UPPER(?)
+        AND TRIM(UPPER(batch))=TRIM(UPPER(?)) 
+        AND TRIM(UPPER(section))=TRIM(UPPER(?))
         AND record_type != 'hidden'
       ORDER BY CASE day
         WHEN 'Saturday' THEN 1 WHEN 'Sunday' THEN 2 WHEN 'Monday' THEN 3
@@ -326,10 +326,10 @@ class LocalRepository {
         // Derive batch/section/subgroup/special_group from group_code
         const derived = parseBatchSection(c.group_code || '');
         // Prefer explicit fields if present (round-tripped exports may include them)
-        const batch        = c.batch         ?? derived.batch;
-        const section      = c.section       ?? derived.section;
-        const subgroup     = c.subgroup      ?? derived.subgroup;
-        const special_group = c.special_group ?? derived.special_group;
+        const batch        = (c.batch || derived.batch)?.toString().trim() || null;
+        const section      = (c.section || derived.section)?.toString().trim() || null;
+        const subgroup     = (c.subgroup || derived.subgroup)?.toString().trim() || null;
+        const special_group = (c.special_group || derived.special_group)?.toString().trim() || null;
 
         await db.run(
           `INSERT INTO classes (routine_version_id, source_record_id, page, day, start_time, end_time, room, course_code, group_code, batch, section, subgroup, special_group, teacher)

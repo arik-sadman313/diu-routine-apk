@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 import type { ClassRecord } from '../types/api';
 import { Timetable } from '../components/Timetable';
 import { ClassEditorModal } from '../components/ClassEditorModal';
-import { Search, LayoutGrid, List, Compass, Loader2, Eye, Plus, ChevronDown, GraduationCap, Users, Layout } from 'lucide-react';
+import { Search, LayoutGrid, List, Compass, Loader2, Eye, Plus, ChevronDown, GraduationCap, Users } from 'lucide-react';
 import { SelectionModal } from '../components/SelectionModal';
 export function Explore() {
   const { selectedVersion, options, loading: optionsLoading } = useAppContext();
@@ -42,8 +42,8 @@ export function Explore() {
 
   // Derived available sections based on selected batch
   const availableSections = options?.batch_sections
-    .filter(bs => bs.batch === selectedBatch)
-    .map(bs => bs.section)
+    .filter(bs => String(bs.batch) === String(selectedBatch))
+    .map(bs => String(bs.section))
     .sort() || [];
 
   // Reset section if it becomes invalid for the new batch
@@ -56,14 +56,14 @@ export function Explore() {
   }, [selectedBatch, availableSections, selectedSection]);
 
   const loadRoutine = async () => {
-    if (!selectedBatch || !selectedSection || !versionId) {
+    if (!selectedBatch || !selectedSection) {
       setClasses([]);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const data = await api.getRoutine(selectedBatch, selectedSection, versionId);
+      const data = await api.getRoutine(selectedBatch.trim(), selectedSection.trim(), versionId);
       setClasses(data.classes);
     } catch (err: any) {
       setError(err.message || 'Failed to load routine');
@@ -80,7 +80,7 @@ export function Explore() {
 
   // Filter classes locally
   const filteredClasses = classes.filter(c => {
-    if (selectedGroup && c.group_code !== selectedGroup) return false;
+    if (selectedGroup && selectedGroup !== 'All Groups' && c.group_code !== selectedGroup) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const matchCourse = c.course_code.toLowerCase().includes(q);
@@ -286,18 +286,18 @@ export function Explore() {
         emptyText="No sections found"
       />
 
-      <SelectionModal
-        isOpen={showGroupModal}
-        onClose={() => setShowGroupModal(false)}
-        onConfirm={setSelectedGroup}
-        title="Select Group"
-        subtitle="Choose your group"
-        icon={Layout}
-        options={['', ...uniqueGroups]} // Include empty option for "All Groups"
-        currentValue={selectedGroup}
-        searchPlaceholder="Search group..."
-        emptyText="No groups found"
-      />
+        <SelectionModal
+          isOpen={showGroupModal}
+          onClose={() => setShowGroupModal(false)}
+          onConfirm={(val) => setSelectedGroup(val === 'All Groups' ? '' : val)}
+          title="Filter by Group"
+          subtitle="Select a group to see only those classes."
+          icon={Users}
+          options={['All Groups', ...uniqueGroups]}
+          currentValue={selectedGroup || 'All Groups'}
+          searchPlaceholder="Search groups..."
+          emptyText="No groups found"
+        />
     </div>
   );
 }

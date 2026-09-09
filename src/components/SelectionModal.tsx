@@ -61,7 +61,8 @@ export function SelectionModal({
 
   if (!isOpen) return null;
 
-  const filtered = options.filter(o => o.toLowerCase().includes(query.toLowerCase()));
+  const safeOptions = options.map(o => String(o || ''));
+  const filtered = safeOptions.filter(o => o.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
@@ -148,12 +149,12 @@ export function SelectionModal({
           </button>
           <button 
             onClick={() => {
-              if (tempValue) {
+              if (tempValue !== undefined && tempValue !== null) {
                 onConfirm(tempValue);
                 onClose();
               }
             }}
-            disabled={!tempValue}
+            disabled={tempValue === undefined || tempValue === null}
             className="flex-1 px-4 py-2.5 text-sm font-bold text-accent-foreground bg-accent hover:bg-accent-600 disabled:opacity-50 disabled:hover:bg-accent rounded-xl shadow-sm transition-colors"
           >
             Confirm
